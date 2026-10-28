@@ -454,3 +454,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .print-sheet footer { margin-top: 24px; font-family: var(--font-serif), Georgia, serif; font-style: italic; color: #777; display: flex; align-items: center; gap: 8px; }
   .print-sheet footer .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a66b; display: inline-block; }
 }
+
+.ftr-left { display: flex; flex-direction: column; gap: 8px; }
+.oss { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-3); }
+.oss svg { width: 15px; height: 15px; }
+.oss:hover { color: var(--ink); }
