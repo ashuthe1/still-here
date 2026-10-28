@@ -12,10 +12,10 @@ npm run dev        # http://localhost:3000
 ## Build and deploy
 
 ```bash
-npm run build      # static site in ./build
+npm run build      # static site in ./out
 ```
 
-Deploy the `build` folder to any static host: Vercel, Netlify, Cloudflare Pages, GitHub Pages. There is no server, no database, and no environment variables.
+On Vercel, import the repo with the Next.js preset and default settings. Elsewhere, deploy the `out` folder to any static host: Netlify, Cloudflare Pages, GitHub Pages. There is no server, no database, and no environment variables.
 
 ## Content
 

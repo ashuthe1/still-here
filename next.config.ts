@@ -1,14 +1,14 @@
 import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
-// Dev compiles into .next-dev so that `npm run build` (which always writes its
-// intermediate files to .next in export mode) can never break a running dev server.
-// The static export itself lands in ./build.
+// Production builds use the standard layout (compile into .next, export into ./out),
+// which is what Vercel's Next.js preset expects. The dev server compiles into
+// .next-dev so that running a build never breaks a running dev server.
 const config = (phase: string): NextConfig => ({
   output: "export",
   trailingSlash: true,
   images: { unoptimized: true },
-  distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : "build",
+  ...(phase === PHASE_DEVELOPMENT_SERVER ? { distDir: ".next-dev" } : {}),
 });
 
 export default config;
