@@ -490,8 +490,13 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 /* ---------- sealed letters ---------- */
 .small { font-size: 0.9rem; line-height: 1.5; margin: 0 0 12px; }
 .seal-chooser .row-actions { align-items: stretch; }
-.date-pill { position: relative; cursor: pointer; }
-.date-pill input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.date-row { margin-top: 12px; }
+.date-input {
+  height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: var(--bg); color: var(--ink); font: inherit; font-size: 0.95rem; outline: none;
+  color-scheme: inherit;
+}
+.date-input:focus { border-color: color-mix(in oklab, var(--accent) 60%, var(--line-2)); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent); }
 .pill.subtle { border-color: transparent; }
 
 .envelope {
