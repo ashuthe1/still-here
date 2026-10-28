@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const q = getQuestion(category, slug);
   if (!q) return {};
   const short = q.text.length > 64 ? q.text.slice(0, 64).replace(/\s+\S*$/, "") + "…" : q.text;
-  return { title: short, description: q.why };
+  return { title: short, description: q.why, alternates: { canonical: questionHref(q) } };
 }
 
 export default async function QuestionPage({ params }: { params: Promise<{ category: string; slug: string }> }) {

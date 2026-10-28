@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ theme: st
   const p = getPiece(theme, slug);
   if (!p) return {};
   const text = headline(p).slice(0, 140);
-  return { title: p.title || `${headlineAuthor(p)}`, description: text };
+  return { title: p.title || `${headlineAuthor(p)}`, description: text, alternates: { canonical: pieceHref(p) } };
 }
 
 export default async function PiecePage({ params }: { params: Promise<{ theme: string; slug: string }> }) {

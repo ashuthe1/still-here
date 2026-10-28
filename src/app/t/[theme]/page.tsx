@@ -1,13 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { themes, getTheme, piecesFor, pieceHref, headline, headlineAuthor, paragraphs } from "@/lib/content";
+import { themes, getTheme, piecesFor, pieceHref, themeHref, headline, headlineAuthor, paragraphs } from "@/lib/content";
 
 export function generateStaticParams() { return themes.map((t) => ({ theme: t.key })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ theme: string }> }): Promise<Metadata> {
   const t = getTheme((await params).theme);
-  return { title: t?.title ?? "Still Here", description: t?.tagline };
+  return { title: t?.title ?? "Still Here", description: t?.tagline, alternates: t ? { canonical: themeHref(t.key) } : undefined };
 }
 
 const KIND = { line: "Line", reflection: "Reflection", letter: "Letter" } as const;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { categories, getCategory, questionsFor, questionHref, paragraphs } from "@/lib/content";
+import { categories, getCategory, questionsFor, questionHref, categoryHref, paragraphs } from "@/lib/content";
 import AnsweredMark from "@/components/AnsweredMark";
 import { Printer } from "@/components/Icons";
 
@@ -9,7 +9,7 @@ export function generateStaticParams() { return categories.map((c) => ({ categor
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const c = getCategory((await params).category);
-  return { title: c?.title ?? "Still Here", description: c?.tagline };
+  return { title: c?.title ?? "Still Here", description: c?.tagline, alternates: c ? { canonical: categoryHref(c.key) } : undefined };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {

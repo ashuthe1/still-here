@@ -1,12 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { questions, categories, dailyIndex, questionHref } from "@/lib/content";
 import { ArrowRight, Shuffle } from "./Icons";
 
 export default function DailyQuestion() {
   const [i, setI] = useState<number | null>(null);
+  const router = useRouter();
   useEffect(() => { setI(dailyIndex(new Date(), questions.length, 1)); }, []);
+  function another() {
+    let j = Math.floor(Math.random() * questions.length);
+    if (j === i) j = (j + 1) % questions.length;
+    router.push(questionHref(questions[j]));
+  }
   if (i === null) return <div className="today skeleton" aria-hidden />;
   const q = questions[i];
   const c = categories.find((x) => x.key === q.cat)!;
@@ -18,7 +25,7 @@ export default function DailyQuestion() {
       {q.why && <p className="why">{q.why}</p>}
       <div className="row-actions">
         <Link href={questionHref(q)} className="btn">Write your answer <ArrowRight /></Link>
-        <Link href="/ask/random/" className="pill"><Shuffle /> Another one</Link>
+        <button className="pill" onClick={another}><Shuffle /> Another one</button>
       </div>
     </div>
   );

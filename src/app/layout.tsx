@@ -15,9 +15,15 @@ const serif = Fraunces({
 });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
+import { SITE_URL } from "@/lib/site";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Still Here", template: "%s · Still Here" },
-  description: "Lines about life, hardship, and finding yourself. Curated, attributed, and written to make you feel more capable, not just comforted.",
+  description: "One gentle question a day. Write privately, know yourself better. Plus a shelf of lines worth keeping.",
+  openGraph: { type: "website", siteName: "Still Here", locale: "en" },
+  twitter: { card: "summary_large_image" },
+  alternates: { canonical: "/" },
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
   appleWebApp: { capable: true, title: "Still Here", statusBarStyle: "black-translucent" },
