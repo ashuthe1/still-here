@@ -38,9 +38,9 @@ export default async function PiecePage({ params }: { params: Promise<{ theme: s
         </div>
       </div>
       <nav className="piece-nav" aria-label="Previous and next">
-        {prev ? <Link href={pieceHref(prev)} className="n prev"><ArrowLeft /><span>{prev.title || headlineAuthor(prev)}</span></Link> : <span className="n" />}
-        <span className="mid">← →</span>
-        {next ? <Link href={pieceHref(next)} className="n next"><span>{next.title || headlineAuthor(next)}</span><ArrowRight /></Link> : <span className="n" />}
+        {prev ? <Link href={pieceHref(prev)} className="n prev"><ArrowLeft /><span><small>Previous</small>{prev.title || headlineAuthor(prev)}</span></Link> : <span className="n" />}
+        <span className="mid" aria-hidden>{i + 1} / {list.length}</span>
+        {next ? <Link href={pieceHref(next)} className="n next"><span><small>Next</small>{next.title || headlineAuthor(next)}</span><ArrowRight /></Link> : <span className="n" />}
       </nav>
     </main>
   );

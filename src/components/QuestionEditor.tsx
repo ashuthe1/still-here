@@ -8,6 +8,7 @@ import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, for
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode } from "@/lib/card";
 import { Share, Printer, Seal } from "./Icons";
 import DatePicker from "./DatePicker";
+import EnvelopeArt from "./EnvelopeArt";
 import { isStandalone, isPhone } from "@/lib/site";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
@@ -20,6 +21,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [customDate, setCustomDate] = useState("");
   const [pickDate, setPickDate] = useState(false);
   const [justOpened, setJustOpened] = useState<string | null>(null);
+  const [opening, setOpening] = useState<string | null>(null);
   const [printWithAnswer, setPrintWithAnswer] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -63,9 +65,20 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   }
   function inMonths(n: number): Date { const d = new Date(); d.setMonth(d.getMonth() + n); return d; }
   function open(e: Entry) {
-    openEntry(question.id, e.t);
-    setEntries(getEntries(question.id));
-    setJustOpened(e.t);
+    if (opening) return;
+    setOpening(e.t);
+    // let the flap lift and the letter slide out before the words appear
+    setTimeout(() => {
+      openEntry(question.id, e.t);
+      setEntries(getEntries(question.id));
+      setJustOpened(e.t);
+      setOpening(null);
+    }, 1100);
+  }
+  function progressOf(e: Entry): number {
+    const a = new Date(e.t).getTime(), b = new Date(e.sealedUntil!).getTime(), n = Date.now();
+    if (b <= a) return 100;
+    return Math.max(0, Math.min(100, ((n - a) / (b - a)) * 100));
   }
   async function shareSealed(e: Entry) {
     setMenu(null);
@@ -195,15 +208,21 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         <section className="entries">
           <span className="eyebrow">What you wrote</span>
           {entries.map((e) => isSealed(e) ? (
-            <article key={e.t} className={`envelope ${isReady(e) ? "ready" : ""}`}>
-              <div className="flap" aria-hidden />
-              <div className="wax" aria-hidden><Seal /></div>
+            <article key={e.t} className={`envelope ${isReady(e) ? "ready" : ""} ${opening === e.t ? "opening" : ""}`}>
+              <div className="env-left"><EnvelopeArt open={opening === e.t} ready={isReady(e)} /></div>
               <div className="env-body">
-                <span className="eyebrow">{isReady(e) ? "Ready to open" : "Sealed letter"}</span>
+                <span className="eyebrow">{isReady(e) ? "Ready to open" : "A sealed letter"}</span>
                 <p className="env-title">{isReady(e) ? "The day has come." : `Opens ${formatDate(e.sealedUntil!)}`}</p>
-                <p className="env-sub">Sealed {formatDate(e.t)}{isReady(e) ? "" : ` · ${daysUntil(e.sealedUntil!)} day${daysUntil(e.sealedUntil!) === 1 ? "" : "s"} to go`}</p>
+                <p className="env-sub">
+                  {isReady(e)
+                    ? `You sealed this on ${formatDate(e.t)}. Nobody has read it since, not even you.`
+                    : `Sealed ${formatDate(e.t)} · ${daysUntil(e.sealedUntil!)} day${daysUntil(e.sealedUntil!) === 1 ? "" : "s"} to go`}
+                </p>
+                {!isReady(e) && <div className="env-progress" aria-hidden><span style={{ width: `${progressOf(e)}%` }} /></div>}
                 <div className="row-actions">
-                  {isReady(e) ? <button className="btn" onClick={() => open(e)}>Open the letter</button> : <button className="pill" onClick={() => shareSealed(e)}><Share /> Share that you sealed one</button>}
+                  {isReady(e)
+                    ? <button className="btn gold" onClick={() => open(e)} disabled={opening === e.t}>{opening === e.t ? "Opening…" : "Open the letter"}</button>
+                    : <button className="pill" onClick={() => shareSealed(e)}><Share /> Share that you sealed one</button>}
                   <button className="pill subtle" onClick={() => remove(e)}>Delete</button>
                 </div>
               </div>

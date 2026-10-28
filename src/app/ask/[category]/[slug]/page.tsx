@@ -49,9 +49,9 @@ export default async function QuestionPage({ params }: { params: Promise<{ categ
         </article>
       </div>
       <nav className="piece-nav" aria-label="Previous and next">
-        {prev ? <Link href={questionHref(prev)} className="n prev"><ArrowLeft /><span>{prev.text}</span></Link> : <span className="n" />}
-        <span className="mid">← →</span>
-        {next ? <Link href={questionHref(next)} className="n next"><span>{next.text}</span><ArrowRight /></Link> : <span className="n" />}
+        {prev ? <Link href={questionHref(prev)} className="n prev"><ArrowLeft /><span><small>Previous</small>{prev.text}</span></Link> : <span className="n" />}
+        <span className="mid" aria-hidden>{i + 1} / {list.length}</span>
+        {next ? <Link href={questionHref(next)} className="n next"><span><small>Next</small>{next.text}</span><ArrowRight /></Link> : <span className="n" />}
       </nav>
     </main>
   );
