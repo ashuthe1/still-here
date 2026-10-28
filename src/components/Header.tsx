@@ -2,13 +2,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bookmark, Sun, Moon } from "./Icons";
+import { Bookmark, Sun, Moon, Search } from "./Icons";
 
 export default function Header() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const path = usePathname() || "/";
   useEffect(() => {
     setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    function onKey(e: KeyboardEvent) {
+      const t = e.target as HTMLElement | null;
+      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+      if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey) { e.preventDefault(); window.location.href = "/search/"; }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
   function toggle() {
     const next = theme === "dark" ? "light" : "dark";
@@ -17,7 +24,7 @@ export default function Header() {
     setTheme(next);
   }
   const onRead = path.startsWith("/read") || path.startsWith("/t/");
-  const onAsk = !onRead && !path.startsWith("/me") && !path.startsWith("/about");
+  const onAsk = !onRead && !path.startsWith("/me") && !path.startsWith("/about") && !path.startsWith("/search");
   return (
     <header className="hdr">
       <Link href="/" className="wordmark" aria-label="Still Here, home">
@@ -29,6 +36,7 @@ export default function Header() {
         <Link href="/read/" className={onRead ? "on" : ""}>Read</Link>
       </nav>
       <div className="hdr-actions">
+        <Link href="/search/" className="icon-btn" title="Search" aria-label="Search"><Search /></Link>
         <Link href="/me/" className="icon-btn" title="Your answers and saved pieces" aria-label="Your answers and saved pieces"><Bookmark /></Link>
         <button className="icon-btn" onClick={toggle} title={theme === "dark" ? "Light mode" : "Dark mode"} aria-label="Toggle light and dark">
           {theme === "dark" ? <Sun /> : <Moon />}

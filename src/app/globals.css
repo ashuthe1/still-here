@@ -459,3 +459,25 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .oss { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-3); }
 .oss svg { width: 15px; height: 15px; }
 .oss:hover { color: var(--ink); }
+
+/* ---------- search ---------- */
+.search { max-width: 48rem; }
+.search-box {
+  display: block; width: 100%; margin-top: 10px;
+  padding: 16px 20px; border-radius: 14px; border: 1px solid var(--line-2); background: var(--bg-2); color: var(--ink);
+  font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.3rem, 1rem + 1.2vw, 1.8rem); font-weight: 300;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none;
+}
+.search-box::placeholder { color: var(--ink-3); font-style: italic; }
+.search-box:focus { border-color: color-mix(in oklab, var(--accent) 60%, var(--line-2)); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent); }
+.search-hint { margin-top: 14px; font-size: 0.88rem; }
+.results { margin-top: 36px; }
+.results .section-head { margin-bottom: 6px; }
+.results .section-head h2 { font-size: 1.1rem; }
+.hit { display: block; padding: 16px 0; border-top: 1px solid var(--line); transition: background-color 0.2s; }
+.hit:hover { background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--bg-3) 70%, transparent) 10%, color-mix(in oklab, var(--bg-3) 70%, transparent) 90%, transparent); }
+.hit-meta { display: inline-flex; align-items: center; gap: 7px; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.hit-meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.hit-title { margin: 6px 0 0; font-family: var(--font-serif), Georgia, serif; font-weight: 300; font-size: 1.2rem; line-height: 1.35; color: var(--ink); }
+.hit-snippet { margin: 6px 0 0; color: var(--ink-2); font-size: 0.95rem; line-height: 1.5; }
+mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: inherit; border-radius: 3px; padding: 0 2px; }
