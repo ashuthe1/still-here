@@ -81,6 +81,7 @@ if (existsSync(ASK)) {
         id: `${dir}/${slug}`, cat: dir, slug, text,
         why: qm.why || "", deeper: qm.deeper || "", read: pieceIds.has(qm.read) ? qm.read : "",
         tags: Array.isArray(qm.tags) ? qm.tags : [], order: qm.order ?? 999,
+        seal: qm.seal === true || qm.seal === "true",
       });
       cat.count++;
     }

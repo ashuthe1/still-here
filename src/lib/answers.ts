@@ -1,7 +1,18 @@
 // Everything a reader writes stays in their browser. Nothing here talks to a server.
 import type { Question } from "./content";
 
-export interface Entry { t: string; text: string }
+export interface Entry {
+  t: string;            // written at
+  text: string;
+  sealedUntil?: string; // present for a sealed letter
+  openedAt?: string;    // set once the reader opens it
+}
+
+export const isSealed = (e: Entry) => !!e.sealedUntil && !e.openedAt;
+export const isReady = (e: Entry) => isSealed(e) && new Date(e.sealedUntil!).getTime() <= Date.now();
+export function daysUntil(iso: string): number {
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000));
+}
 type Store = Record<string, Entry[]>;
 
 const KEY = "sh-answers";
@@ -29,6 +40,25 @@ export function addEntry(id: string, text: string): Entry {
   write(s);
   return e;
 }
+export function sealEntry(id: string, text: string, until: Date): Entry {
+  const s = read();
+  const e: Entry = { t: new Date().toISOString(), text, sealedUntil: until.toISOString() };
+  s[id] = [e, ...(s[id] || [])];
+  write(s);
+  return e;
+}
+export function openEntry(id: string, t: string) {
+  const s = read();
+  s[id] = (s[id] || []).map((e) => (e.t === t ? { ...e, openedAt: new Date().toISOString() } : e));
+  write(s);
+}
+/** Every sealed letter on this device, with its question id. */
+export function sealedLetters(): { id: string; entry: Entry }[] {
+  const out: { id: string; entry: Entry }[] = [];
+  for (const [id, entries] of Object.entries(read())) for (const e of entries) if (isSealed(e)) out.push({ id, entry: e });
+  return out.sort((a, b) => a.entry.sealedUntil!.localeCompare(b.entry.sealedUntil!));
+}
+
 export function updateEntry(id: string, t: string, text: string) {
   const s = read();
   s[id] = (s[id] || []).map((e) => (e.t === t ? { ...e, text } : e));
@@ -62,7 +92,10 @@ export function exportMarkdown(questions: Question[], categoryTitle: (key: strin
     if (!entries?.length) continue;
     if (q.cat !== cat) { cat = q.cat; lines.push(`## ${categoryTitle(cat)}`, ""); }
     lines.push(`### ${q.text}`, "");
-    for (const e of entries) lines.push(`*${formatDate(e.t)}*`, "", e.text.trim(), "");
+    for (const e of entries) {
+      if (isSealed(e)) lines.push(`*Sealed on ${formatDate(e.t)}, opens ${formatDate(e.sealedUntil!)}*`, "");
+      else lines.push(`*${formatDate(e.t)}*`, "", e.text.trim(), "");
+    }
   }
   return lines.join("\n");
 }

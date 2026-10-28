@@ -4,9 +4,9 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Question } from "@/lib/content";
 import { questions, questionHref } from "@/lib/content";
-import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, type Entry } from "@/lib/answers";
-import { renderQuestionCard, type QuestionCardMode } from "@/lib/card";
-import { Share, Printer } from "./Icons";
+import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
+import { renderQuestionCard, renderSealedCard, type QuestionCardMode } from "@/lib/card";
+import { Share, Printer, Seal } from "./Icons";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -14,7 +14,9 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [editing, setEditing] = useState<string | null>(null);
   const [toast, setToast] = useState("");
   const [loaded, setLoaded] = useState(false);
-  const [menu, setMenu] = useState<null | "share" | "print">(null);
+  const [menu, setMenu] = useState<null | "share" | "print" | "seal">(null);
+  const [customDate, setCustomDate] = useState("");
+  const [justOpened, setJustOpened] = useState<string | null>(null);
   const [printWithAnswer, setPrintWithAnswer] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -47,6 +49,32 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     flash("Kept on this device");
   }
 
+  function seal(until: Date) {
+    const v = text.trim();
+    if (!v) return;
+    sealEntry(question.id, v, until);
+    setDraft(question.id, "");
+    setEntries(getEntries(question.id));
+    setText(""); setMenu(null);
+    flash(`Sealed. It opens on ${formatDate(until.toISOString())}.`);
+  }
+  function inMonths(n: number): Date { const d = new Date(); d.setMonth(d.getMonth() + n); return d; }
+  function open(e: Entry) {
+    openEntry(question.id, e.t);
+    setEntries(getEntries(question.id));
+    setJustOpened(e.t);
+  }
+  async function shareSealed(e: Entry) {
+    setMenu(null);
+    try {
+      const blob = await renderSealedCard(categoryTitle, accent, formatDate(e.sealedUntil!));
+      const file = new File([blob], `still-here-sealed-letter.png`, { type: "image/png" });
+      const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+      if (phone && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
+      else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); flash("Image saved to your downloads"); }
+    } catch { flash("Could not make image"); }
+  }
+
   function startEdit(e: Entry) { setEditing(e.t); setText(e.text); ta.current?.focus(); }
   function remove(e: Entry) {
     if (!confirm("Delete this answer? This cannot be undone.")) return;
@@ -60,7 +88,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     router.push(nextHref.includes("/random/") ? questionHref(q) : nextHref);
   }
 
-  function latestAnswer(): string { return text.trim() || entries[0]?.text || ""; }
+  function latestAnswer(): string { return text.trim() || entries.find((e) => !isSealed(e))?.text || ""; }
 
   /** Phones get the system share sheet with just the file. Laptops download one PNG. */
   async function share(withAnswer: boolean) {
@@ -93,13 +121,18 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   return (
     <div className="editor">
-      <label className="eyebrow" htmlFor="answer">{editing ? "Editing an earlier answer" : entries.length ? "Answer it again" : "Your answer"}</label>
+      <label className="eyebrow" htmlFor="answer">{editing ? "Editing an earlier answer" : question.seal ? (entries.length ? "Write another" : "Your letter") : entries.length ? "Answer it again" : "Your answer"}</label>
       <textarea
         id="answer" ref={ta} className="answer" value={text} onChange={(e) => onChange(e.target.value)}
         placeholder={loaded ? "Write here. Nobody else will see it." : ""} spellCheck={false}
       />
       <div className="row-actions">
-        <button className="btn" onClick={save} disabled={!text.trim()}>{editing ? "Save changes" : "Keep this"}</button>
+        {question.seal && !editing ? (
+          <button className={`btn ${menu === "seal" ? "" : ""}`} onClick={() => setMenu(menu === "seal" ? null : "seal")} disabled={!text.trim()}><Seal /> Seal it</button>
+        ) : (
+          <button className="btn" onClick={save} disabled={!text.trim()}>{editing ? "Save changes" : "Keep this"}</button>
+        )}
+        {question.seal && !editing && <button className="pill" onClick={save} disabled={!text.trim()}>Keep it open instead</button>}
         {editing ? (
           <button className="pill" onClick={() => { setEditing(null); setText(getDraft(question.id)); }}>Cancel</button>
         ) : (
@@ -107,6 +140,23 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         )}
         <span className="faint autosave">{text && !editing ? "Draft saved as you type" : ""}</span>
       </div>
+
+      {menu === "seal" && (
+        <div className="chooser seal-chooser" role="group" aria-label="When should it open?">
+          <span className="eyebrow">When should it open?</span>
+          <p className="muted small">Once sealed, it stays hidden, even from you, until that day. Choose a date you will still be glad about.</p>
+          <div className="row-actions">
+            <button className="pill" onClick={() => seal(inMonths(3))}>In three months</button>
+            <button className="pill" onClick={() => seal(inMonths(6))}>In six months</button>
+            <button className="pill" onClick={() => seal(inMonths(12))}>In a year</button>
+            <label className="pill date-pill">
+              <span>A date</span>
+              <input type="date" value={customDate} min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} onChange={(e) => setCustomDate(e.target.value)} />
+            </label>
+            {customDate && <button className="btn" onClick={() => seal(new Date(customDate + "T09:00:00"))}>Seal until {formatDate(customDate)}</button>}
+          </div>
+        </div>
+      )}
 
       {showDeeper && (
         <div className="deeper">
@@ -118,8 +168,23 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       {entries.length > 0 && (
         <section className="entries">
           <span className="eyebrow">What you wrote</span>
-          {entries.map((e) => (
-            <article key={e.t} className={`entry ${editing === e.t ? "editing" : ""}`}>
+          {entries.map((e) => isSealed(e) ? (
+            <article key={e.t} className={`envelope ${isReady(e) ? "ready" : ""}`}>
+              <div className="flap" aria-hidden />
+              <div className="wax" aria-hidden><Seal /></div>
+              <div className="env-body">
+                <span className="eyebrow">{isReady(e) ? "Ready to open" : "Sealed letter"}</span>
+                <p className="env-title">{isReady(e) ? "The day has come." : `Opens ${formatDate(e.sealedUntil!)}`}</p>
+                <p className="env-sub">Sealed {formatDate(e.t)}{isReady(e) ? "" : ` · ${daysUntil(e.sealedUntil!)} day${daysUntil(e.sealedUntil!) === 1 ? "" : "s"} to go`}</p>
+                <div className="row-actions">
+                  {isReady(e) ? <button className="btn" onClick={() => open(e)}>Open the letter</button> : <button className="pill" onClick={() => shareSealed(e)}><Share /> Share that you sealed one</button>}
+                  <button className="pill subtle" onClick={() => remove(e)}>Delete</button>
+                </div>
+              </div>
+            </article>
+          ) : (
+            <article key={e.t} className={`entry ${editing === e.t ? "editing" : ""} ${justOpened === e.t ? "revealed" : ""}`}>
+              {e.openedAt && <div className="opened-note">Sealed {formatDate(e.t)} · opened {formatDate(e.openedAt)}</div>}
               <header>
                 <span>{formatDate(e.t)}</span>
                 <span className="entry-actions">

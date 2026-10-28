@@ -1,5 +1,6 @@
 import type { Piece } from "./content";
 import { headline, headlineAuthor } from "./content";
+import { SITE_HOST } from "./site";
 
 function fontFamily(varName: string): string {
   const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
@@ -73,10 +74,12 @@ export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
   const src = isOriginal ? "" : (piece.type === "reflection" ? piece.quoteSource : piece.source);
   if (src) { ctx.fillStyle = "#8d8679"; ctx.font = `400 26px ${sans}`; ctx.fillText(src, PAD, y); }
 
-  // wordmark
+  // wordmark and address
   ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#a9a195"; ctx.font = `italic 400 32px ${serif}`;
   ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillStyle = "#6f685e"; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
+  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
 
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
 }
@@ -184,10 +187,52 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
     if (alines.length > maxLines) ctx.fillText("…", PAD, y + maxLines * asz * 1.5);
   }
 
-  // wordmark
+  // wordmark and address
   ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = ink2; ctx.font = `italic 400 32px ${serif}`;
   ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillStyle = ink3; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
+  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
 
+  return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
+}
+
+/** A dark card announcing a sealed letter without revealing a word of it. */
+export async function renderSealedCard(categoryTitle: string, accent: string, opensOn: string): Promise<Blob> {
+  const serif = fontFamily("--font-serif");
+  const sans = fontFamily("--font-sans");
+  await Promise.all([document.fonts.load(`300 60px ${serif}`), document.fonts.load(`italic 400 40px ${serif}`), document.fonts.load(`500 30px ${sans}`)]).catch(() => {});
+  const W = 1080, H = 1350, PAD = 100;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "#0f0e0c"; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W * 0.5, H * 0.42, 0, W * 0.5, H * 0.42, W * 0.7);
+  g.addColorStop(0, accent + "40"); g.addColorStop(1, "transparent");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = "top";
+  ctx.fillStyle = accent; ctx.font = `600 22px ${sans}`;
+  ctx.fillText(categoryTitle.toUpperCase().split("").join(String.fromCharCode(8202)), PAD, PAD);
+  // envelope
+  const ex = W / 2 - 150, ey = H * 0.30, ew = 300, eh = 200;
+  ctx.strokeStyle = accent; ctx.lineWidth = 4; ctx.lineJoin = "round";
+  ctx.strokeRect(ex, ey, ew, eh);
+  ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + ew / 2, ey + eh * 0.55); ctx.lineTo(ex + ew, ey); ctx.stroke();
+  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(ex + ew / 2, ey + eh * 0.55, 26, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#0f0e0c"; ctx.beginPath(); ctx.arc(ex + ew / 2, ey + eh * 0.55, 10, 0, Math.PI * 2); ctx.fill();
+  // text
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ece6da"; ctx.font = `300 64px ${serif}`;
+  ctx.fillText("I wrote a letter", W / 2, ey + eh + 90);
+  ctx.fillText("to myself.", W / 2, ey + eh + 90 + 80);
+  ctx.fillStyle = "#a9a195"; ctx.font = `italic 400 38px ${serif}`;
+  ctx.fillText(`It opens on ${opensOn}.`, W / 2, ey + eh + 90 + 200);
+  ctx.fillStyle = "#6f685e"; ctx.font = `400 26px ${sans}`;
+  ctx.fillText("Write one to yourself", W / 2, ey + eh + 90 + 290);
+  ctx.textAlign = "left";
+  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#a9a195"; ctx.font = `italic 400 32px ${serif}`;
+  ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillStyle = "#6f685e"; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
+  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
 }

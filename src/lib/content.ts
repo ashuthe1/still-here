@@ -99,6 +99,7 @@ export interface Question {
   read: string;
   tags: string[];
   order: number;
+  seal?: boolean;
 }
 
 export const categories: Category[] = (data as { categories: Category[] }).categories;

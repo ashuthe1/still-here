@@ -39,3 +39,9 @@ export const GitHub = () => (
 export const Search = () => (
   <svg {...base}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
 );
+export const Seal = () => (
+  <svg {...base}><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2.5 2.5" /></svg>
+);
+export const Envelope = () => (
+  <svg {...base}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+);

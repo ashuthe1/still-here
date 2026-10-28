@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { pieces, themes, questions, categories, pieceHref, questionHref, headline, headlineAuthor } from "@/lib/content";
 import { getSaved } from "@/lib/saved";
-import { getAll, exportMarkdown, exportJson, importJson, formatDate, type Entry } from "@/lib/answers";
+import { getAll, exportMarkdown, exportJson, importJson, formatDate, isSealed, isReady, daysUntil, sealedLetters, type Entry } from "@/lib/answers";
+import { Envelope } from "@/components/Icons";
 
 function download(name: string, text: string, type: string) {
   const a = document.createElement("a");
@@ -18,8 +19,9 @@ export default function MePage() {
   const file = useRef<HTMLInputElement>(null);
   useEffect(() => { setSaved(getSaved()); setAnswers(getAll()); }, []);
 
-  const answered = questions.filter((q) => answers[q.id]?.length)
+  const answered = questions.filter((q) => answers[q.id]?.some((e) => !isSealed(e)))
     .sort((a, b) => answers[b.id][0].t.localeCompare(answers[a.id][0].t));
+  const sealed = Object.keys(answers).length ? sealedLetters() : [];
   const savedPieces = saved.map((id) => pieces.find((p) => p.id === id)).filter(Boolean) as typeof pieces;
   const catTitle = (k: string) => categories.find((c) => c.key === k)?.title ?? k;
 
@@ -43,11 +45,30 @@ export default function MePage() {
           {msg && <span className="muted" style={{ fontSize: "0.85rem" }}>{msg}</span>}
         </div>
       </section>
+      {sealed.length > 0 && (
+        <section className="sealed-list">
+          <div className="eyebrow" style={{ marginBottom: 10 }}><b>Sealed letters</b></div>
+          {sealed.map(({ id, entry }) => {
+            const q = questions.find((x) => x.id === id); if (!q) return null;
+            const c = categories.find((x) => x.key === q.cat)!;
+            const ready = isReady(entry);
+            return (
+              <Link key={entry.t} href={questionHref(q)} className={`letter-banner ${ready ? "ready" : ""}`} style={{ ["--accent" as string]: c.accent }}>
+                <span className="env-icon"><Envelope /></span>
+                <span className="letter-text">
+                  <b>{ready ? "Ready to open" : `Opens ${formatDate(entry.sealedUntil!)}`}</b>
+                  <span className="muted">Sealed {formatDate(entry.t)}{ready ? "" : ` · ${daysUntil(entry.sealedUntil!)} days to go`}</span>
+                </span>
+              </Link>
+            );
+          })}
+        </section>
+      )}
       <section className="list">
         {answered.length === 0 && <p className="empty">Nothing written yet. <Link href="/ask/start/" className="u">Start with twelve questions.</Link></p>}
         {answered.map((q) => {
           const c = categories.find((x) => x.key === q.cat)!;
-          const e = answers[q.id][0];
+          const e = answers[q.id].find((x) => !isSealed(x))!;
           return (
             <Link key={q.id} href={questionHref(q)} className="row" style={{ ["--accent" as string]: c.accent }}>
               <span className="kind" style={{ color: c.accent }}>{c.title}</span>

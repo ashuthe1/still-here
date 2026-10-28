@@ -3,11 +3,14 @@ import DailyQuestion from "@/components/DailyQuestion";
 import CategoryGrid from "@/components/CategoryGrid";
 import { ArrowRight } from "@/components/Icons";
 import { startPath } from "@/lib/content";
+import ReadyLetters from "@/components/ReadyLetters";
+import InstallHint from "@/components/InstallHint";
 
 export default function Home() {
   return (
     <main className="wrap">
       <section className="hero">
+        <ReadyLetters />
         <DailyQuestion />
       </section>
       <section className="section">
@@ -24,6 +27,7 @@ export default function Home() {
           <span className="faint" style={{ fontSize: "0.85rem" }}>One question at a time</span>
         </div>
         <CategoryGrid />
+        <InstallHint />
         <p className="promise">
           Everything you write stays on this device. No account, nothing sent anywhere, and you can export it all as one file whenever you like.
         </p>
