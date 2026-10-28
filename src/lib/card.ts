@@ -102,7 +102,7 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   ]).catch(() => {});
 
   const W = 1080, H = 1350, PAD = 100;
-  const paper = mode !== "question";
+  const paper = mode === "ruled";
   const bg = paper ? "#f7f3ec" : "#0f0e0c";
   const ink = paper ? "#1c1a17" : "#ece6da";
   const ink2 = paper ? "#5e5850" : "#a9a195";
@@ -122,17 +122,42 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   ctx.fillStyle = accent; ctx.font = `600 22px ${sans}`;
   ctx.fillText(categoryTitle.toUpperCase().split("").join(String.fromCharCode(8202)), PAD, PAD);
 
-  // question text
-  let size = mode === "question" ? 66 : 48;
+  // question text: fit to the space the mode allows
+  const maxW = W - PAD * 2;
+  let size = mode === "question" ? 66 : 50;
   let lines: string[] = [];
-  const maxQH = mode === "question" ? H - PAD * 2 - 240 : 420;
+  const maxQH = mode === "question" ? H - PAD * 2 - 240 : 400;
   for (; size >= 28; size -= 2) {
     ctx.font = `300 ${size}px ${serif}`;
-    lines = wrap(ctx, q.text, W - PAD * 2);
+    lines = wrap(ctx, q.text, maxW);
     if (lines.length * size * 1.28 <= maxQH) break;
   }
   const lh = size * 1.28;
-  let y = mode === "question" ? Math.max(PAD + 80, (H - lines.length * lh) / 2 - 60) : PAD + 60;
+  const qH = lines.length * lh;
+  const bottom = H - PAD - 60;
+
+  // the answer, when there is one: shrink until the whole block fits
+  let asz = 36, alines: string[] = [], aH = 0;
+  if (mode === "answer") {
+    for (; asz >= 20; asz -= 2) {
+      ctx.font = `400 ${asz}px ${serif}`;
+      alines = wrap(ctx, answer.trim() || "(no answer yet)", maxW);
+      aH = alines.length * asz * 1.5;
+      if (qH + 110 + aH <= bottom - (PAD + 80)) break;
+    }
+  }
+
+  // vertical placement: centred for share cards, top-anchored for the ruled sheet
+  let y: number;
+  if (mode === "question") {
+    y = Math.max(PAD + 80, (H - qH - 120) / 2);
+  } else if (mode === "answer") {
+    const total = qH + 110 + aH;
+    y = Math.max(PAD + 80, (H - total) / 2);
+  } else {
+    y = PAD + 60;
+  }
+
   ctx.fillStyle = ink; ctx.font = `300 ${size}px ${serif}`;
   for (const l of lines) { ctx.fillText(l, PAD, y); y += lh; }
 
@@ -141,29 +166,22 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
     ctx.fillStyle = accent; ctx.fillRect(PAD, y, 56, 3); y += 26;
     if (q.why) {
       ctx.fillStyle = ink2; ctx.font = `italic 400 30px ${serif}`;
-      for (const l of wrap(ctx, q.why, W - PAD * 2)) { ctx.fillText(l, PAD, y); y += 42; }
+      for (const l of wrap(ctx, q.why, maxW)) { ctx.fillText(l, PAD, y); y += 42; }
+    }
+  } else if (mode === "ruled") {
+    y += 36;
+    ctx.fillStyle = accent; ctx.fillRect(PAD, y, 56, 3); y += 40;
+    ctx.strokeStyle = ink3; ctx.lineWidth = 1.5;
+    for (let ly = y + 48; ly < bottom; ly += 64) {
+      ctx.beginPath(); ctx.moveTo(PAD, ly); ctx.lineTo(W - PAD, ly); ctx.stroke();
     }
   } else {
     y += 36;
     ctx.fillStyle = accent; ctx.fillRect(PAD, y, 56, 3); y += 40;
-    const bottom = H - PAD - 60;
-    if (mode === "ruled") {
-      ctx.strokeStyle = ink3; ctx.lineWidth = 1.5;
-      for (let ly = y + 48; ly < bottom; ly += 64) {
-        ctx.beginPath(); ctx.moveTo(PAD, ly); ctx.lineTo(W - PAD, ly); ctx.stroke();
-      }
-    } else {
-      let asz = 34; let alines: string[] = [];
-      for (; asz >= 20; asz -= 2) {
-        ctx.font = `400 ${asz}px ${serif}`;
-        alines = wrap(ctx, answer.trim() || "(no answer yet)", W - PAD * 2);
-        if (alines.length * asz * 1.5 <= bottom - y) break;
-      }
-      ctx.fillStyle = ink; ctx.font = `400 ${asz}px ${serif}`;
-      const maxLines = Math.floor((bottom - y) / (asz * 1.5));
-      alines.slice(0, maxLines).forEach((l, i) => ctx.fillText(l, PAD, y + i * asz * 1.5));
-      if (alines.length > maxLines) ctx.fillText("…", PAD, y + maxLines * asz * 1.5);
-    }
+    ctx.fillStyle = ink2; ctx.font = `400 ${asz}px ${serif}`;
+    const maxLines = Math.floor((bottom - y) / (asz * 1.5));
+    alines.slice(0, maxLines).forEach((l, i) => ctx.fillText(l, PAD, y + i * asz * 1.5));
+    if (alines.length > maxLines) ctx.fillText("…", PAD, y + maxLines * asz * 1.5);
   }
 
   // wordmark

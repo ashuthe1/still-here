@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Question } from "@/lib/content";
 import { questions, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, type Entry } from "@/lib/answers";
 import { renderQuestionCard, type QuestionCardMode } from "@/lib/card";
-import { Share, Image as ImageIcon, Printer, Send } from "./Icons";
+import { Share, Printer } from "./Icons";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -13,6 +14,10 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [editing, setEditing] = useState<string | null>(null);
   const [toast, setToast] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [menu, setMenu] = useState<null | "share" | "print">(null);
+  const [printWithAnswer, setPrintWithAnswer] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const ta = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
 
@@ -55,27 +60,33 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     router.push(nextHref.includes("/random/") ? questionHref(q) : nextHref);
   }
 
-  async function card(mode: QuestionCardMode) {
+  function latestAnswer(): string { return text.trim() || entries[0]?.text || ""; }
+
+  /** Phones get the system share sheet with just the file. Laptops download one PNG. */
+  async function share(withAnswer: boolean) {
+    setMenu(null);
     try {
-      const answer = text.trim() || entries[0]?.text || "";
-      const blob = await renderQuestionCard(question, categoryTitle, accent, mode, answer);
-      const file = new File([blob], `still-here-${question.slug}-${mode}.png`, { type: "image/png" });
-      if (mode !== "ruled" && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Still Here" });
+      const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "question", latestAnswer());
+      const file = new File([blob], `still-here-${question.slug}${withAnswer ? "-answer" : ""}.png`, { type: "image/png" });
+      const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+      if (phone && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
       } else {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-        flash("Image saved");
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        flash("Image saved to your downloads");
       }
     } catch { flash("Could not make image"); }
   }
 
-  async function sendText() {
-    const answer = text.trim() || entries[0]?.text || "";
-    const body = `${question.text}\n\n${answer}\n\n— written on Still Here`;
-    if (navigator.share) { try { await navigator.share({ title: "Still Here", text: body }); return; } catch {} }
-    try { await navigator.clipboard.writeText(body); flash("Copied, ready to paste"); } catch { flash("Could not copy"); }
+  function print(withAnswer: boolean) {
+    setMenu(null);
+    setPrintWithAnswer(withAnswer);
+    document.body.classList.add("print-sheet-mode");
+    const done = () => { document.body.classList.remove("print-sheet-mode"); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    setTimeout(() => window.print(), 60);
   }
 
   const showDeeper = !!question.deeper && (text.trim().length > 40 || entries.length > 0);
@@ -123,12 +134,36 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       )}
 
       <div className="actions">
-        <button className="pill" onClick={() => card("question")}><Share />Share the question</button>
-        <button className="pill" onClick={() => card("ruled")}><Printer />Sheet to write on</button>
-        <button className="pill" onClick={() => card("answer")} disabled={!text.trim() && !entries.length}><ImageIcon />With my answer</button>
-        <button className="pill" onClick={sendText} disabled={!text.trim() && !entries.length}><Send />Send as text</button>
+        <button className={`pill ${menu === "share" ? "on" : ""}`} onClick={() => setMenu(menu === "share" ? null : "share")}><Share />Share</button>
+        <button className={`pill ${menu === "print" ? "on" : ""}`} onClick={() => setMenu(menu === "print" ? null : "print")}><Printer />Print</button>
       </div>
-      <p className="faint share-note">Sharing is always your choice. Send a question to someone, or an answer to someone who matters.</p>
+      {menu && (
+        <div className="chooser" role="group" aria-label={menu === "share" ? "Share as an image" : "Print"}>
+          <span className="eyebrow">{menu === "share" ? "Share as an image" : "Print a sheet"}</span>
+          <div className="row-actions">
+            <button className="pill" onClick={() => (menu === "share" ? share(false) : print(false))}>Just the question</button>
+            <button className="pill" onClick={() => (menu === "share" ? share(true) : print(true))} disabled={!latestAnswer()}>With my answer</button>
+          </div>
+        </div>
+      )}
+      {mounted && createPortal(
+        <div className="print-root" aria-hidden>
+          <div className="print-sheet">
+            <div className="eyebrow">{categoryTitle}</div>
+            <h1>{question.text}</h1>
+            {question.why && <p className="why">{question.why}</p>}
+            {printWithAnswer ? (
+              <div className="print-answer">
+                {entries[0] && !text.trim() && <div className="faint">{formatDate(entries[0].t)}</div>}
+                {latestAnswer().split(/\n+/).map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            ) : <div className="ruled tall" />}
+            {question.deeper && <p className="deeper-line">Then: {question.deeper}</p>}
+            <footer><span className="dot" /> Still Here</footer>
+          </div>
+        </div>,
+        document.body
+      )}
       <div className={`toast ${toast ? "show" : ""}`} role="status">{toast}</div>
     </div>
   );

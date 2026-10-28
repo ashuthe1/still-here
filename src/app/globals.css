@@ -435,4 +435,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   a { color: inherit; }
 }
 
-.share-note { margin: 12px 0 0; font-size: 0.8rem; line-height: 1.5; }
+.chooser {
+  margin-top: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-2);
+  animation: rise 0.35s var(--ease) both;
+}
+.chooser .eyebrow { display: block; margin-bottom: 10px; }
+
+/* single-question print sheet: hidden on screen, the only thing on paper */
+.print-root { display: none; }
+@media print {
+  body.print-sheet-mode > :not(.print-root) { display: none !important; }
+  body.print-sheet-mode .print-root { display: block; }
+  .print-sheet { max-width: none; padding: 0; }
+  .print-sheet .eyebrow { color: #999; }
+  .print-sheet h1 { font-family: var(--font-serif), Georgia, serif; font-weight: 300; font-size: 2rem; line-height: 1.25; margin: 10px 0 10px; letter-spacing: -0.01em; }
+  .print-sheet .why { color: #444; font-size: 1rem; margin-bottom: 18px; }
+  .print-sheet .ruled.tall { height: 68vh; }
+  .print-sheet footer { margin-top: 24px; font-family: var(--font-serif), Georgia, serif; font-style: italic; color: #777; display: flex; align-items: center; gap: 8px; }
+  .print-sheet footer .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a66b; display: inline-block; }
+}
