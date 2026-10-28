@@ -7,6 +7,7 @@ import { questions, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode } from "@/lib/card";
 import { Share, Printer, Seal } from "./Icons";
+import DatePicker from "./DatePicker";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -17,7 +18,6 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [menu, setMenu] = useState<null | "share" | "print" | "seal">(null);
   const [customDate, setCustomDate] = useState("");
   const [pickDate, setPickDate] = useState(false);
-  const dateRef = useRef<HTMLInputElement>(null);
   const [justOpened, setJustOpened] = useState<string | null>(null);
   const [printWithAnswer, setPrintWithAnswer] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -151,19 +151,16 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
             <button className="pill" onClick={() => seal(inMonths(3))}>In three months</button>
             <button className="pill" onClick={() => seal(inMonths(6))}>In six months</button>
             <button className="pill" onClick={() => seal(inMonths(12))}>In a year</button>
-            <button className={`pill ${pickDate ? "on" : ""}`} onClick={() => {
-              setPickDate(true);
-              setTimeout(() => { const el = dateRef.current; if (!el) return; el.focus(); try { el.showPicker?.(); } catch {} }, 30);
-            }}>A date of my own</button>
+            <button className={`pill ${pickDate ? "on" : ""}`} onClick={() => setPickDate((v) => !v)}>A date of my own</button>
           </div>
           {pickDate && (
-            <div className="row-actions date-row">
-              <input ref={dateRef} className="date-input" type="date" value={customDate}
-                min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)}
-                onChange={(e) => setCustomDate(e.target.value)} aria-label="Opening date" />
-              <button className="btn" disabled={!customDate} onClick={() => customDate && seal(new Date(customDate + "T09:00:00"))}>
-                {customDate ? `Seal until ${formatDate(customDate)}` : "Pick a date first"}
-              </button>
+            <div className="date-row">
+              <DatePicker value={customDate} min={new Date(Date.now() + 86400000)} onChange={setCustomDate} />
+              <div className="row-actions" style={{ marginTop: 12 }}>
+                <button className="btn" disabled={!customDate} onClick={() => customDate && seal(new Date(customDate + "T09:00:00"))}>
+                  {customDate ? `Seal until ${formatDate(customDate)}` : "Pick a day above"}
+                </button>
+              </div>
             </div>
           )}
         </div>

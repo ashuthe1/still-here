@@ -8,7 +8,9 @@ export default function Header() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const path = usePathname() || "/";
   useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    const t = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+    setTheme(t);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "light" ? "#f7f3ec" : "#0f0e0c");
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement | null;
       const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
@@ -20,6 +22,7 @@ export default function Header() {
   function toggle() {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", next === "light" ? "#f7f3ec" : "#0f0e0c");
     try { localStorage.setItem("sh-theme", next); } catch {}
     setTheme(next);
   }

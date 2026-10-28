@@ -26,19 +26,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
-  appleWebApp: { capable: true, title: "Still Here", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Still Here", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0f0e0c" },
-    { media: "(prefers-color-scheme: light)", color: "#f7f3ec" },
-  ],
+  themeColor: "#0f0e0c",
   viewportFit: "cover",
 };
 
 // Runs before paint so the saved theme never flashes.
-const themeInit = `(function(){try{var t=localStorage.getItem('sh-theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();`;
+const themeInit = `(function(){try{var t=localStorage.getItem('sh-theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}var m=document.querySelector('meta[name="theme-color"]');if(m){m.setAttribute('content',document.documentElement.dataset.theme==='light'?'#f7f3ec':'#0f0e0c');}}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
