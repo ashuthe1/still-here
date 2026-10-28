@@ -10,6 +10,7 @@ import ShapeToggle from "./ShapeToggle";
 import { Share, Printer, Seal } from "./Icons";
 import DatePicker from "./DatePicker";
 import EnvelopeArt from "./EnvelopeArt";
+import PaperPlane from "./PaperPlane";
 import { isStandalone, isPhone } from "@/lib/site";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
@@ -25,6 +26,8 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [pickDate, setPickDate] = useState(false);
   const [justOpened, setJustOpened] = useState<string | null>(null);
   const [opening, setOpening] = useState<string | null>(null);
+  const [sealing, setSealing] = useState<{ until: Date; closed: boolean } | null>(null);
+  const [flying, setFlying] = useState(false);
   const [printWithAnswer, setPrintWithAnswer] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -47,24 +50,40 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   function onChange(v: string) { setText(v); if (!editing) setDraft(question.id, v); }
 
-  function save() {
-    const v = text.trim();
-    if (!v) return;
+  function commitSave(v: string) {
     if (editing) { updateEntry(question.id, editing, v); setEditing(null); }
     else { addEntry(question.id, v); setDraft(question.id, ""); }
     setEntries(getEntries(question.id));
     setText("");
+  }
+  function save() {
+    const v = text.trim();
+    if (!v) return;
+    if (question.send === "younger" && !editing) {
+      // fold it into a plane and send it back before it lands in the list
+      setFlying(true);
+      setTimeout(() => { commitSave(v); setFlying(false); flash("Sent. They got it."); }, 2200);
+      return;
+    }
+    commitSave(v);
     flash("Kept on this device");
   }
 
   function seal(until: Date) {
     const v = text.trim();
-    if (!v) return;
-    sealEntry(question.id, v, until);
-    setDraft(question.id, "");
-    setEntries(getEntries(question.id));
-    setText(""); setMenu(null);
-    flash(`Sealed. It opens on ${formatDate(until.toISOString())}.`);
+    if (!v || sealing) return;
+    setMenu(null);
+    // the letter goes in, the flap comes down, the wax lands; then it is really sealed
+    setSealing({ until, closed: false });
+    setTimeout(() => setSealing({ until, closed: true }), 80);
+    setTimeout(() => {
+      sealEntry(question.id, v, until);
+      setDraft(question.id, "");
+      setEntries(getEntries(question.id));
+      setText("");
+      setSealing(null);
+      flash(`Sealed. It opens on ${formatDate(until.toISOString())}.`);
+    }, 2300);
   }
   function inMonths(n: number): Date { const d = new Date(); d.setMonth(d.getMonth() + n); return d; }
   function open(e: Entry) {
@@ -177,6 +196,20 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         <span className="faint autosave">{text && !editing ? "Draft saved as you type" : ""}</span>
       </div>
 
+      {sealing && (
+        <div className="stage" role="status" aria-live="polite">
+          <div className="stage-art"><EnvelopeArt open={!sealing.closed} closing={sealing.closed} /></div>
+          <p className="stage-cap">Sealing until <b>{formatDate(sealing.until.toISOString())}</b></p>
+          <p className="stage-sub">Not even you can read it before then.</p>
+        </div>
+      )}
+      {flying && (
+        <div className="stage fly" role="status" aria-live="polite">
+          <div className="stage-art plane-wrap"><PaperPlane /><span className="trail" /></div>
+          <p className="stage-cap">Folded, and sent back.</p>
+          <p className="stage-sub">To the you who was fifteen. They needed that.</p>
+        </div>
+      )}
       {menu === "seal" && (
         <div className="chooser seal-chooser" role="group" aria-label="When should it open?">
           <span className="eyebrow">When should it open?</span>

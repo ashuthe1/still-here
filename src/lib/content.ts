@@ -100,6 +100,7 @@ export interface Question {
   tags: string[];
   order: number;
   seal?: boolean;
+  send?: string;   // "younger": the letter is sent back to a younger self when kept
 }
 
 export const categories: Category[] = (data as { categories: Category[] }).categories;

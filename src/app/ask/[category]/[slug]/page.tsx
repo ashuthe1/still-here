@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { questions, getCategory, getQuestion, questionsFor, questionHref, categoryHref, getPieceById, headline, headlineAuthor, pieceHref } from "@/lib/content";
 import QuestionEditor from "@/components/QuestionEditor";
 import FirstVisitNote from "@/components/FirstVisitNote";
+import AnsweredNote from "@/components/AnsweredNote";
 import { ArrowLeft, ArrowRight } from "@/components/Icons";
 
 export function generateStaticParams() { return questions.map((q) => ({ category: q.cat, slug: q.slug })); }
@@ -38,6 +39,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ categ
           <h1 className="quote q-text">{q.text}</h1>
           {q.why && <p className="why">{q.why}</p>}
           <FirstVisitNote />
+          <AnsweredNote id={q.id} />
           <QuestionEditor question={q} accent={c.accent} categoryTitle={c.title} nextHref={next ? questionHref(next) : "/ask/random/"} />
           {piece && (
             <aside className="read-with">

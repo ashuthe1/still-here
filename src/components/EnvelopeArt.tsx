@@ -1,7 +1,7 @@
 /** A small drawn envelope. `open` lifts the flap and slides the letter out. */
-export default function EnvelopeArt({ open = false, ready = false }: { open?: boolean; ready?: boolean }) {
+export default function EnvelopeArt({ open = false, ready = false, closing = false }: { open?: boolean; ready?: boolean; closing?: boolean }) {
   return (
-    <svg className={`env-art ${open ? "open" : ""} ${ready ? "ready" : ""}`} viewBox="0 0 160 116" aria-hidden>
+    <svg className={`env-art ${open ? "open" : ""} ${ready ? "ready" : ""} ${closing ? "closing" : ""}`} viewBox="0 0 160 116" aria-hidden>
       <rect className="env-back" x="8" y="30" width="144" height="80" rx="9" />
       <g className="env-letter">
         <rect x="26" y="24" width="108" height="72" rx="4" />

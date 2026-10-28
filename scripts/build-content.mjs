@@ -82,6 +82,7 @@ if (existsSync(ASK)) {
         why: qm.why || "", deeper: qm.deeper || "", read: pieceIds.has(qm.read) ? qm.read : "",
         tags: Array.isArray(qm.tags) ? qm.tags : [], order: qm.order ?? 999,
         seal: qm.seal === true || qm.seal === "true",
+        send: typeof qm.send === "string" ? qm.send : "",
       });
       cat.count++;
     }

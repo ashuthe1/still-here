@@ -636,3 +636,46 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 .shape-toggle .shape { display: inline-block; border: 1.5px solid currentColor; border-radius: 2px; opacity: 0.7; }
 .shape-toggle .shape.feed { width: 11px; height: 14px; }
 .shape-toggle .shape.story { width: 9px; height: 16px; }
+
+.answered-note {
+  display: flex; align-items: center; gap: 10px; margin: -14px 0 22px; font-size: 0.88rem; color: var(--ink-2);
+}
+.answered-note .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+
+/* ---------- sealing and sending stages ---------- */
+.stage {
+  margin: 14px 0; padding: 28px 20px 24px; border-radius: 18px; text-align: center;
+  border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
+  background: radial-gradient(120% 100% at 50% 0%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 60%), var(--bg-2);
+  animation: rise 0.4s var(--ease) both;
+}
+.stage-art { width: 180px; margin: 0 auto 14px; }
+.stage-cap { margin: 0 0 4px; font-family: var(--font-serif), Georgia, serif; font-weight: 300; font-size: 1.35rem; }
+.stage-cap b { font-weight: 400; color: var(--accent); }
+.stage-sub { margin: 0; color: var(--ink-2); font-size: 0.9rem; }
+
+/* closing order: letter in, flap down, wax on */
+.env-art.closing .env-letter { transition: transform 0.7s var(--ease) 0s; }
+.env-art.closing .env-flap { transition: transform 0.6s var(--ease) 0.75s; }
+.env-art.closing .env-seal { transition: transform 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) 1.45s, opacity 0.2s 1.45s; }
+.env-art.closing:not(.open) .env-seal { animation: stamp 0.5s 1.45s both; }
+@keyframes stamp { 0% { transform: scale(1.8); opacity: 0; } 60% { transform: scale(0.92); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+/* paper plane */
+.plane-wrap { position: relative; height: 120px; width: 100%; max-width: 420px; overflow: visible; }
+.plane { position: absolute; left: 6%; bottom: 10px; width: 64px; height: 48px; animation: fly 2s cubic-bezier(0.4, 0, 0.3, 1) both; }
+.plane-body { fill: #f7f3ec; stroke: color-mix(in oklab, var(--accent) 60%, #b8ae9d); stroke-width: 1.5; stroke-linejoin: round; }
+.plane-fold { fill: color-mix(in oklab, var(--accent) 18%, #e9e2d5); stroke: color-mix(in oklab, var(--accent) 60%, #b8ae9d); stroke-width: 1.5; stroke-linejoin: round; }
+.plane-line { fill: none; stroke: color-mix(in oklab, var(--accent) 60%, #b8ae9d); stroke-width: 1.5; }
+.trail {
+  position: absolute; left: 12%; bottom: 30px; width: 76%; height: 2px;
+  border-top: 2px dashed color-mix(in oklab, var(--accent) 50%, transparent);
+  transform-origin: left center; transform: rotate(-14deg) scaleX(0); animation: trail 2s cubic-bezier(0.4, 0, 0.3, 1) both;
+}
+@keyframes fly {
+  0% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 0; }
+  15% { opacity: 1; transform: translate(10px, -4px) rotate(-4deg) scale(1); }
+  100% { transform: translate(340px, -120px) rotate(-16deg) scale(0.7); opacity: 0; }
+}
+@keyframes trail { 0% { transform: rotate(-14deg) scaleX(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: rotate(-14deg) scaleX(1); opacity: 0; } }
+@media (max-width: 520px) { @keyframes fly { 0% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 0; } 15% { opacity: 1; transform: translate(6px, -4px) rotate(-4deg) scale(1); } 100% { transform: translate(220px, -100px) rotate(-16deg) scale(0.7); opacity: 0; } } }
