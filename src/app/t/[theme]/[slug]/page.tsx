@@ -34,7 +34,7 @@ export default async function PiecePage({ params }: { params: Promise<{ theme: s
       <div>
         <PieceBody piece={p} themeTitle={t.title} />
         <div className="piece-main" style={{ paddingTop: 0, animation: "none" }}>
-          <PieceActions piece={p} accent={t.accent} prevHref={prev && pieceHref(prev)} nextHref={next && pieceHref(next)} />
+          <PieceActions piece={p} accent={t.accent} themeTitle={t.title} prevHref={prev && pieceHref(prev)} nextHref={next && pieceHref(next)} />
         </div>
       </div>
       <nav className="piece-nav" aria-label="Previous and next">

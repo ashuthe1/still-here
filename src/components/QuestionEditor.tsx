@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import type { Question } from "@/lib/content";
 import { questions, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
-import { renderQuestionCard, renderSealedCard, type QuestionCardMode } from "@/lib/card";
+import { renderQuestionCard, renderSealedCard, type QuestionCardMode, type CardSize } from "@/lib/card";
+import ShapeToggle from "./ShapeToggle";
 import { Share, Printer, Seal } from "./Icons";
 import DatePicker from "./DatePicker";
 import EnvelopeArt from "./EnvelopeArt";
@@ -18,6 +19,8 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [toast, setToast] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [menu, setMenu] = useState<null | "share" | "print" | "seal">(null);
+  const [shape, setShape] = useState<CardSize>("feed");
+  const [sealShare, setSealShare] = useState<string | null>(null);
   const [customDate, setCustomDate] = useState("");
   const [pickDate, setPickDate] = useState(false);
   const [justOpened, setJustOpened] = useState<string | null>(null);
@@ -80,11 +83,11 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     if (b <= a) return 100;
     return Math.max(0, Math.min(100, ((n - a) / (b - a)) * 100));
   }
-  async function shareSealed(e: Entry) {
-    setMenu(null);
+  async function shareSealed(e: Entry, size: CardSize) {
+    setMenu(null); setSealShare(null);
     try {
-      const blob = await renderSealedCard(categoryTitle, accent, formatDate(e.sealedUntil!));
-      const file = new File([blob], `still-here-sealed-letter.png`, { type: "image/png" });
+      const blob = await renderSealedCard(categoryTitle, accent, formatDate(e.sealedUntil!), size);
+      const file = new File([blob], `still-here-sealed-letter${size === "story" ? "-story" : ""}.png`, { type: "image/png" });
       const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
       if (phone && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
       else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); flash("Image saved to your downloads"); }
@@ -110,8 +113,8 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   async function share(withAnswer: boolean) {
     setMenu(null);
     try {
-      const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "question", latestAnswer());
-      const file = new File([blob], `still-here-${question.slug}${withAnswer ? "-answer" : ""}.png`, { type: "image/png" });
+      const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "question", latestAnswer(), false, shape);
+      const file = new File([blob], `still-here-${question.slug}${withAnswer ? "-answer" : ""}${shape === "story" ? "-story" : ""}.png`, { type: "image/png" });
       const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
       if (phone && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file] });
@@ -222,9 +225,15 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
                 <div className="row-actions">
                   {isReady(e)
                     ? <button className="btn gold" onClick={() => open(e)} disabled={opening === e.t}>{opening === e.t ? "Opening…" : "Open the letter"}</button>
-                    : <button className="pill" onClick={() => shareSealed(e)}><Share /> Share that you sealed one</button>}
+                    : <button className={`pill ${sealShare === e.t ? "on" : ""}`} onClick={() => setSealShare(sealShare === e.t ? null : e.t)}><Share /> Share that you sealed one</button>}
                   <button className="pill subtle" onClick={() => remove(e)}>Delete</button>
                 </div>
+                {sealShare === e.t && (
+                  <div className="row-actions" style={{ marginTop: 10 }}>
+                    <button className="pill" onClick={() => shareSealed(e, "feed")}>For the feed</button>
+                    <button className="pill" onClick={() => shareSealed(e, "story")}>For a story</button>
+                  </div>
+                )}
               </div>
             </article>
           ) : (
@@ -250,6 +259,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       {menu && (
         <div className="chooser" role="group" aria-label={menu === "share" ? "Share as an image" : "Print"}>
           <span className="eyebrow">{menu === "share" ? "Share as an image" : "Print a sheet"}</span>
+          {menu === "share" && <ShapeToggle value={shape} onChange={setShape} />}
           <div className="row-actions">
             <button className="pill" onClick={() => (menu === "share" ? share(false) : print(false))}>Just the question</button>
             <button className="pill" onClick={() => (menu === "share" ? share(true) : print(true))} disabled={!latestAnswer()}>With my answer</button>

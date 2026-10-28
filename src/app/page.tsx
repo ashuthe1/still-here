@@ -2,10 +2,10 @@ import Link from "next/link";
 import DailyQuestion from "@/components/DailyQuestion";
 import CategoryGrid from "@/components/CategoryGrid";
 import { ArrowRight } from "@/components/Icons";
-import { startPath } from "@/lib/content";
 import ReadyLetters from "@/components/ReadyLetters";
 import InstallHint from "@/components/InstallHint";
 import Welcome from "@/components/Welcome";
+import StartBanner from "@/components/StartBanner";
 
 export default function Home() {
   return (
@@ -16,14 +16,7 @@ export default function Home() {
         <DailyQuestion />
       </section>
       <section className="section">
-        <Link href="/ask/start/" className="start-banner">
-          <div>
-            <div className="eyebrow"><b>New here?</b></div>
-            <h2>Start with {startPath.length} questions</h2>
-            <p>A gentle first pass across every part of your life. Twenty minutes, or a week of evenings.</p>
-          </div>
-          <ArrowRight />
-        </Link>
+        <StartBanner />
         <div className="section-head" style={{ marginTop: 40 }}>
           <h2>Or pick a place to begin</h2>
           <span className="faint" style={{ fontSize: "0.85rem" }}>One question at a time</span>

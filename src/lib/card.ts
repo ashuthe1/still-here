@@ -2,6 +2,15 @@ import type { Piece } from "./content";
 import { headline, headlineAuthor } from "./content";
 import { SITE_HOST } from "./site";
 
+export type CardSize = "feed" | "story";
+
+/** Feed cards are 4:5. Story cards are 9:16 with the footer in the lower third, clear of Instagram's own controls. */
+function dims(shape: CardSize) {
+  return shape === "story"
+    ? { W: 1080, H: 1920, PAD: 120, FY: 1920 - 400, CH: 1920 - 400 + 60 }
+    : { W: 1080, H: 1350, PAD: 100, FY: 1350 - 100, CH: 1350 };
+}
+
 function fontFamily(varName: string): string {
   const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   return v || "Georgia";
@@ -23,7 +32,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): st
 }
 
 /** Renders a 1080x1350 share card (Instagram portrait) and returns a PNG blob. */
-export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
+export async function renderCard(piece: Piece, accent: string, shape: CardSize = "feed"): Promise<Blob> {
   const serif = fontFamily("--font-serif");
   const sans = fontFamily("--font-sans");
   await Promise.all([
@@ -32,7 +41,7 @@ export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
     document.fonts.load(`500 30px ${sans}`),
   ]).catch(() => {});
 
-  const W = 1080, H = 1350, PAD = 110;
+  const { W, H, PAD, FY, CH } = dims(shape);
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const ctx = c.getContext("2d")!;
 
@@ -48,7 +57,7 @@ export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
   // fit text: shrink until it fits the box
   let size = 64;
   let lines: string[] = [];
-  const maxH = H - PAD * 2 - 260;
+  const maxH = CH - PAD * 2 - 260;
   for (; size >= 30; size -= 2) {
     ctx.font = `${isOriginal ? "italic " : ""}300 ${size}px ${serif}`;
     lines = wrap(ctx, text, W - PAD * 2);
@@ -56,7 +65,7 @@ export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
   }
   const lh = size * 1.3;
   const blockH = lines.length * lh;
-  let y = (H - blockH) / 2 - 40;
+  let y = Math.max(PAD + 80, (CH - blockH) / 2 - 40);
 
   ctx.fillStyle = "#ece6da"; ctx.textBaseline = "top";
   if (!isOriginal) {
@@ -75,11 +84,11 @@ export async function renderCard(piece: Piece, accent: string): Promise<Blob> {
   if (src) { ctx.fillStyle = "#8d8679"; ctx.font = `400 26px ${sans}`; ctx.fillText(src, PAD, y); }
 
   // wordmark and address
-  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, FY + 4, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#a9a195"; ctx.font = `italic 400 32px ${serif}`;
-  ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillText("Still Here", PAD + 28, FY - 14);
   ctx.fillStyle = "#6f685e"; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
-  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
+  ctx.fillText(SITE_HOST, W - PAD, FY - 8); ctx.textAlign = "left";
 
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
 }
@@ -95,7 +104,7 @@ export type QuestionCardMode = "question" | "ruled" | "answer";
  *  ruled:    paper, with lines to write on by hand
  *  answer:   paper, with the reader's answer typeset under the question
  */
-export async function renderQuestionCard(q: Question, categoryTitle: string, accent: string, mode: QuestionCardMode, answer = "", paperStyle = false): Promise<Blob> {
+export async function renderQuestionCard(q: Question, categoryTitle: string, accent: string, mode: QuestionCardMode, answer = "", paperStyle = false, shape: CardSize = "feed"): Promise<Blob> {
   const serif = fontFamily("--font-serif");
   const sans = fontFamily("--font-sans");
   await Promise.all([
@@ -104,7 +113,7 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
     document.fonts.load(`500 30px ${sans}`),
   ]).catch(() => {});
 
-  const W = 1080, H = 1350, PAD = 100;
+  const { W, H, PAD, FY, CH } = dims(shape);
   const paper = mode === "ruled" || paperStyle;
   const bg = paper ? "#f7f3ec" : "#0f0e0c";
   const ink = paper ? "#1c1a17" : "#ece6da";
@@ -129,7 +138,7 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   const maxW = W - PAD * 2;
   let size = mode === "question" ? 66 : 50;
   let lines: string[] = [];
-  const maxQH = mode === "question" ? H - PAD * 2 - 240 : 400;
+  const maxQH = mode === "question" ? CH - PAD * 2 - 240 : 400;
   for (; size >= 28; size -= 2) {
     ctx.font = `300 ${size}px ${serif}`;
     lines = wrap(ctx, q.text, maxW);
@@ -137,7 +146,7 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   }
   const lh = size * 1.28;
   const qH = lines.length * lh;
-  const bottom = H - PAD - 60;
+  const bottom = FY - 60;
 
   // the answer, when there is one: shrink until the whole block fits
   let asz = 36, alines: string[] = [], aH = 0;
@@ -153,10 +162,10 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   // vertical placement: centred for share cards, top-anchored for the ruled sheet
   let y: number;
   if (mode === "question") {
-    y = Math.max(PAD + 80, (H - qH - 120) / 2);
+    y = Math.max(PAD + 80, (CH - qH - 120) / 2);
   } else if (mode === "answer") {
     const total = qH + 110 + aH;
-    y = Math.max(PAD + 80, (H - total) / 2);
+    y = Math.max(PAD + 80, (CH - total) / 2);
   } else {
     y = PAD + 60;
   }
@@ -188,32 +197,32 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   }
 
   // wordmark and address
-  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, FY + 4, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = ink2; ctx.font = `italic 400 32px ${serif}`;
-  ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillText("Still Here", PAD + 28, FY - 14);
   ctx.fillStyle = ink3; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
-  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
+  ctx.fillText(SITE_HOST, W - PAD, FY - 8); ctx.textAlign = "left";
 
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
 }
 
 /** A dark card announcing a sealed letter without revealing a word of it. */
-export async function renderSealedCard(categoryTitle: string, accent: string, opensOn: string): Promise<Blob> {
+export async function renderSealedCard(categoryTitle: string, accent: string, opensOn: string, shape: CardSize = "feed"): Promise<Blob> {
   const serif = fontFamily("--font-serif");
   const sans = fontFamily("--font-sans");
   await Promise.all([document.fonts.load(`300 60px ${serif}`), document.fonts.load(`italic 400 40px ${serif}`), document.fonts.load(`500 30px ${sans}`)]).catch(() => {});
-  const W = 1080, H = 1350, PAD = 100;
+  const { W, H, PAD, FY, CH } = dims(shape);
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const ctx = c.getContext("2d")!;
   ctx.fillStyle = "#0f0e0c"; ctx.fillRect(0, 0, W, H);
-  const g = ctx.createRadialGradient(W * 0.5, H * 0.42, 0, W * 0.5, H * 0.42, W * 0.7);
+  const g = ctx.createRadialGradient(W * 0.5, CH * 0.42, 0, W * 0.5, CH * 0.42, W * 0.7);
   g.addColorStop(0, accent + "40"); g.addColorStop(1, "transparent");
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.textBaseline = "top";
   ctx.fillStyle = accent; ctx.font = `600 22px ${sans}`;
   ctx.fillText(categoryTitle.toUpperCase().split("").join(String.fromCharCode(8202)), PAD, PAD);
   // envelope
-  const ex = W / 2 - 150, ey = H * 0.30, ew = 300, eh = 200;
+  const ex = W / 2 - 150, ey = CH * 0.30, ew = 300, eh = 200;
   ctx.strokeStyle = accent; ctx.lineWidth = 4; ctx.lineJoin = "round";
   ctx.strokeRect(ex, ey, ew, eh);
   ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + ew / 2, ey + eh * 0.55); ctx.lineTo(ex + ew, ey); ctx.stroke();
@@ -229,10 +238,10 @@ export async function renderSealedCard(categoryTitle: string, accent: string, op
   ctx.fillStyle = "#6f685e"; ctx.font = `400 26px ${sans}`;
   ctx.fillText("Write one to yourself", W / 2, ey + eh + 90 + 290);
   ctx.textAlign = "left";
-  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, H - PAD + 4, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(PAD + 7, FY + 4, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#a9a195"; ctx.font = `italic 400 32px ${serif}`;
-  ctx.fillText("Still Here", PAD + 28, H - PAD - 14);
+  ctx.fillText("Still Here", PAD + 28, FY - 14);
   ctx.fillStyle = "#6f685e"; ctx.font = `400 22px ${sans}`; ctx.textAlign = "right";
-  ctx.fillText(SITE_HOST, W - PAD, H - PAD - 8); ctx.textAlign = "left";
+  ctx.fillText(SITE_HOST, W - PAD, FY - 8); ctx.textAlign = "left";
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
 }
