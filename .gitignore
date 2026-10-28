@@ -1,0 +1,9 @@
+node_modules
+.next
+
+src/data/content.json
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+build
+.next-dev
