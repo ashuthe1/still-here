@@ -17,17 +17,19 @@ export default function Welcome() {
       setShow(true);
     } catch {}
   }, []);
+  function done() { try { localStorage.setItem(KEY, "1"); } catch {} setShow(false); }
   useEffect(() => {
     if (!show) return;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") done(); };
+    window.addEventListener("keydown", onKey);
+    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [show]);
-  function done() { try { localStorage.setItem(KEY, "1"); } catch {} setShow(false); }
   if (!show) return null;
   const first = getQuestionById(startPath[0]);
   return (
-    <div className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-      <div className="welcome-card">
+    <div className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" onClick={done}>
+      <div className="welcome-card" onClick={(e) => e.stopPropagation()}>
         <div className="wordmark" style={{ marginBottom: 28 }}><span className="dot" aria-hidden />Still Here</div>
         <h1 id="welcome-title">A quiet place to meet yourself.</h1>
         <ul className="welcome-lines">
