@@ -95,7 +95,7 @@ export type QuestionCardMode = "question" | "ruled" | "answer";
  *  ruled:    paper, with lines to write on by hand
  *  answer:   paper, with the reader's answer typeset under the question
  */
-export async function renderQuestionCard(q: Question, categoryTitle: string, accent: string, mode: QuestionCardMode, answer = ""): Promise<Blob> {
+export async function renderQuestionCard(q: Question, categoryTitle: string, accent: string, mode: QuestionCardMode, answer = "", paperStyle = false): Promise<Blob> {
   const serif = fontFamily("--font-serif");
   const sans = fontFamily("--font-sans");
   await Promise.all([
@@ -105,7 +105,7 @@ export async function renderQuestionCard(q: Question, categoryTitle: string, acc
   ]).catch(() => {});
 
   const W = 1080, H = 1350, PAD = 100;
-  const paper = mode === "ruled";
+  const paper = mode === "ruled" || paperStyle;
   const bg = paper ? "#f7f3ec" : "#0f0e0c";
   const ink = paper ? "#1c1a17" : "#ece6da";
   const ink2 = paper ? "#5e5850" : "#a9a195";

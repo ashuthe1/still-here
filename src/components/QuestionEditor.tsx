@@ -8,6 +8,7 @@ import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, for
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode } from "@/lib/card";
 import { Share, Printer, Seal } from "./Icons";
 import DatePicker from "./DatePicker";
+import { isStandalone, isPhone } from "@/lib/site";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -110,8 +111,25 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     } catch { flash("Could not make image"); }
   }
 
+  /** In the installed app there is no print dialog, so hand a paper sheet to the share sheet instead. */
+  async function printAsSheet(withAnswer: boolean) {
+    try {
+      const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "ruled", latestAnswer(), true);
+      const file = new File([blob], `still-here-${question.slug}-sheet.png`, { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        flash("Choose Print, or Save to Files");
+        await navigator.share({ files: [file] });
+      } else {
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        flash("Sheet saved as an image");
+      }
+    } catch { flash("Could not make the sheet"); }
+  }
+
   function print(withAnswer: boolean) {
     setMenu(null);
+    if (isStandalone() && isPhone()) { printAsSheet(withAnswer); return; }
     setPrintWithAnswer(withAnswer);
     document.body.classList.add("print-sheet-mode");
     const done = () => { document.body.classList.remove("print-sheet-mode"); window.removeEventListener("afterprint", done); };

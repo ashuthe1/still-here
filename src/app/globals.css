@@ -589,3 +589,5 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 .install-steps .glyph { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--bg-3); vertical-align: -5px; }
 .install-steps .glyph svg { width: 14px; height: 14px; }
 .btn.gold { background: var(--accent); color: #1a1407; }
+
+.in-app-note { margin: -16px 0 28px; max-width: 40rem; }
