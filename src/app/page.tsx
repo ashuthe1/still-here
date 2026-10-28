@@ -5,10 +5,12 @@ import { ArrowRight } from "@/components/Icons";
 import { startPath } from "@/lib/content";
 import ReadyLetters from "@/components/ReadyLetters";
 import InstallHint from "@/components/InstallHint";
+import Welcome from "@/components/Welcome";
 
 export default function Home() {
   return (
     <main className="wrap">
+      <Welcome />
       <section className="hero">
         <ReadyLetters />
         <DailyQuestion />

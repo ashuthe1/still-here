@@ -22,6 +22,13 @@ export default function MePage() {
   const answered = questions.filter((q) => answers[q.id]?.some((e) => !isSealed(e)))
     .sort((a, b) => answers[b.id][0].t.localeCompare(answers[a.id][0].t));
   const sealed = Object.keys(answers).length ? sealedLetters() : [];
+  const now = new Date();
+  const weekStart = new Date(now); weekStart.setHours(0, 0, 0, 0); weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const times = Object.values(answers).flat().map((e) => new Date(e.t));
+  const thisWeek = times.filter((d) => d >= weekStart).length;
+  const thisMonth = times.filter((d) => d >= monthStart).length;
+  const plural = (n: number) => (n === 1 ? "once" : `${n} times`);
   const savedPieces = saved.map((id) => pieces.find((p) => p.id === id)).filter(Boolean) as typeof pieces;
   const catTitle = (k: string) => categories.find((c) => c.key === k)?.title ?? k;
 
@@ -37,6 +44,11 @@ export default function MePage() {
         <div className="eyebrow"><b>Yours</b></div>
         <h1>Your answers</h1>
         <p className="tagline">{answered.length ? `${answered.length} question${answered.length === 1 ? "" : "s"} answered. ` : ""}Kept on this device only.</p>
+        {(thisWeek > 0 || thisMonth > 0) && (
+          <p className="week-line">
+            You wrote {plural(thisWeek)} this week{thisMonth > thisWeek ? `, ${plural(thisMonth)} this month` : ""}.
+          </p>
+        )}
         <div className="row-actions" style={{ marginTop: 24 }}>
           <button className="pill" onClick={() => download("still-here-answers.md", exportMarkdown(questions, catTitle), "text/markdown")} disabled={!answered.length}>Export as text</button>
           <button className="pill" onClick={() => download("still-here-backup.json", exportJson(), "application/json")} disabled={!answered.length}>Backup file</button>
