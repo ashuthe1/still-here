@@ -307,7 +307,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .nav a:hover { color: var(--ink); background: var(--bg-3); }
 .nav a.on { color: var(--ink); background: var(--bg-3); }
-@media (max-width: 420px) { .wordmark { font-size: 1.1rem; } .nav a { padding: 6px 9px; font-size: 0.8rem; } }
+@media (max-width: 440px) {
+  .hdr { gap: 6px; }
+  .wordmark { font-size: 1.05rem; white-space: nowrap; gap: 7px; }
+  .nav { gap: 0; margin-right: 0; }
+  .nav a { padding: 6px 8px; font-size: 0.78rem; white-space: nowrap; }
+  .hdr-actions { gap: 0; }
+  .icon-btn { width: 34px; height: 34px; }
+  .icon-btn svg { width: 17px; height: 17px; }
+}
 
 /* buttons */
 .btn {
@@ -541,14 +549,25 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 .sealed-list { margin-top: 24px; }
 
 /* ---------- install hint ---------- */
-.install {
-  display: flex; gap: 16px; align-items: flex-start; margin-top: 36px; padding: 18px 20px;
-  border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2);
+.install-sheet {
+  position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40;
+  display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px;
+  border-radius: 18px; border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
+  background: color-mix(in oklab, var(--bg-2) 92%, var(--accent)); box-shadow: var(--shadow);
+  animation: sheet-up 0.6s var(--ease) both;
 }
-.install .breathe {
+@media (min-width: 600px) { .install-sheet { left: auto; right: 20px; max-width: 420px; } }
+@keyframes sheet-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.install-sheet .breathe {
   width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex: none; margin-top: 6px;
   animation: breathe 3.2s ease-in-out infinite;
 }
 @keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 35%, transparent); } 50% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--accent) 0%, transparent); } }
+.install-body { min-width: 0; }
 .install-title { margin: 0 0 4px; font-family: var(--font-serif), Georgia, serif; font-size: 1.2rem; }
-.install .row-actions { margin-top: 4px; }
+.install-body .small { margin-bottom: 10px; }
+.install-steps { margin: 0 0 12px; padding-left: 18px; font-size: 0.9rem; line-height: 1.6; color: var(--ink); }
+.install-steps b { font-weight: 500; }
+.install-steps .glyph { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--bg-3); vertical-align: -5px; }
+.install-steps .glyph svg { width: 14px; height: 14px; }
+.btn.gold { background: var(--accent); color: #1a1407; }
