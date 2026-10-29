@@ -2,6 +2,7 @@
 // Plain word matching: every word in the query has to appear somewhere in the text.
 import { questions, pieces, categories, themes, questionHref, pieceHref, headline, headlineAuthor, type Question, type Piece } from "./content";
 import { getAll, formatDate } from "./answers";
+import { getHidden } from "./hidden";
 
 export interface Hit {
   kind: "answer" | "question" | "piece";
@@ -10,6 +11,7 @@ export interface Hit {
   snippet: string;    // the matching passage
   meta: string;       // category / room, date
   accent: string;
+  hidden?: boolean;
 }
 
 const fold = (s: string) =>
@@ -41,6 +43,7 @@ export function search(query: string, limitPerGroup = 12): Hit[] {
   const ws = words(query);
   if (!ws.length) return [];
   const hits: Hit[] = [];
+  const hid = getHidden();
 
   // 1. the reader's answers
   const all = getAll();
@@ -64,7 +67,7 @@ export function search(query: string, limitPerGroup = 12): Hit[] {
     if (n >= limitPerGroup) break;
     if (matches(`${q.text} ${q.why} ${q.deeper}`, ws)) {
       const c = categories.find((x) => x.key === q.cat);
-      hits.push({ kind: "question", href: questionHref(q), title: q.text, snippet: matches(q.text, ws) ? "" : snippet(`${q.why} ${q.deeper}`, ws), meta: c?.title || "", accent: c?.accent || "" });
+      hits.push({ kind: "question", href: questionHref(q), title: q.text, snippet: matches(q.text, ws) ? "" : snippet(`${q.why} ${q.deeper}`, ws), meta: c?.title || "", accent: c?.accent || "", hidden: hid.q.includes(q.id) });
       n++;
     }
   }
@@ -81,7 +84,7 @@ export function search(query: string, limitPerGroup = 12): Hit[] {
       // The rest of the piece: the reflection paragraphs, or just the margin note for a line.
       const rest = p.type === "reflection" ? `${p.body} ${p.note}` : p.type === "letter" ? p.body.split(/\n\s*\n/).slice(1).join(" ") : p.note;
       const extra = !matches(head, ws) && matches(rest, ws) ? snippet(rest, ws) : "";
-      hits.push({ kind: "piece", href: pieceHref(p), title: snippet(head, ws, 140), snippet: extra, meta: `${author === "Still Here" ? p.title : author} · ${t?.title || ""}`, accent: t?.accent || "" });
+      hits.push({ kind: "piece", href: pieceHref(p), title: snippet(head, ws, 140), snippet: extra, meta: `${author === "Still Here" ? p.title : author} · ${t?.title || ""}`, accent: t?.accent || "", hidden: hid.p.includes(p.id) });
       n++;
     }
   }

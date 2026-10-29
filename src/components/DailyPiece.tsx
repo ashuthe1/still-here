@@ -3,12 +3,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { pieces, themes, dailyIndex, headline, headlineAuthor, pieceHref } from "@/lib/content";
 import { ArrowRight } from "./Icons";
+import { hiddenPieces, pickVisible } from "@/lib/hidden";
 
 export default function DailyPiece() {
-  const [i, setI] = useState<number | null>(null);
-  useEffect(() => { setI(dailyIndex(new Date(), pieces.length)); }, []);
-  if (i === null) return <div className="today skeleton" aria-hidden />;
-  const p = pieces[i];
+  const [p, setP] = useState<typeof pieces[number] | null>(null);
+  useEffect(() => {
+    const start = dailyIndex(new Date(), pieces.length);
+    setP(pickVisible(pieces, start, new Set(hiddenPieces())) ?? pieces[start]);
+  }, []);
+  if (!p) return <div className="today skeleton" aria-hidden />;
   const t = themes.find((x) => x.key === p.theme)!;
   const original = headlineAuthor(p) === "Still Here";
   return (

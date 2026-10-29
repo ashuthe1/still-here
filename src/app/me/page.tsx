@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { pieces, themes, questions, categories, pieceHref, questionHref, headline, headlineAuthor } from "@/lib/content";
 import { getSaved } from "@/lib/saved";
+import { getHidden, unhideQuestion, unhidePiece } from "@/lib/hidden";
 import { getAll, exportMarkdown, exportJson, importJson, formatDate, isSealed, isReady, daysUntil, sealedLetters, type Entry } from "@/lib/answers";
 import { Envelope } from "@/components/Icons";
 
@@ -16,8 +17,12 @@ export default function MePage() {
   const [saved, setSaved] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, Entry[]>>({});
   const [msg, setMsg] = useState("");
+  const [tab, setTab] = useState<"answers" | "saved" | "hidden">("answers");
+  const [hidden, setHidden] = useState<{ q: string[]; p: string[] }>({ q: [], p: [] });
   const file = useRef<HTMLInputElement>(null);
-  useEffect(() => { setSaved(getSaved()); setAnswers(getAll()); }, []);
+  useEffect(() => { setSaved(getSaved()); setAnswers(getAll()); setHidden(getHidden()); }, []);
+  function restoreQ(id: string) { unhideQuestion(id); setHidden(getHidden()); }
+  function restoreP(id: string) { unhidePiece(id); setHidden(getHidden()); }
 
   const answered = questions.filter((q) => answers[q.id]?.some((e) => !isSealed(e)))
     .sort((a, b) => answers[b.id][0].t.localeCompare(answers[a.id][0].t));
@@ -57,6 +62,12 @@ export default function MePage() {
           {msg && <span className="muted" style={{ fontSize: "0.85rem" }}>{msg}</span>}
         </div>
       </section>
+      <div className="tabs" role="tablist">
+        <button role="tab" aria-selected={tab === "answers"} className={tab === "answers" ? "on" : ""} onClick={() => setTab("answers")}>Answers{answered.length ? ` · ${answered.length}` : ""}</button>
+        <button role="tab" aria-selected={tab === "saved"} className={tab === "saved" ? "on" : ""} onClick={() => setTab("saved")}>Saved{savedPieces.length ? ` · ${savedPieces.length}` : ""}</button>
+        <button role="tab" aria-selected={tab === "hidden"} className={tab === "hidden" ? "on" : ""} onClick={() => setTab("hidden")}>Hidden{hidden.q.length + hidden.p.length ? ` · ${hidden.q.length + hidden.p.length}` : ""}</button>
+      </div>
+      {tab === "answers" && (<>
       {sealed.length > 0 && (
         <section className="sealed-list">
           <div className="eyebrow" style={{ marginBottom: 10 }}><b>Sealed letters</b></div>
@@ -94,10 +105,8 @@ export default function MePage() {
         })}
       </section>
 
-      <section className="theme-hero" style={{ paddingTop: 64 }}>
-        <div className="eyebrow"><b>Saved lines</b></div>
-        <h2 className="serif" style={{ fontWeight: 300, fontSize: "2rem", margin: "6px 0 0", letterSpacing: "-0.02em" }}>From the shelf</h2>
-      </section>
+      </>)}
+      {tab === "saved" && (<>
       <section className="list">
         {savedPieces.length === 0 && <p className="empty">Nothing saved yet. Press the bookmark on any piece you read.</p>}
         {savedPieces.map((p) => {
@@ -113,6 +122,38 @@ export default function MePage() {
           );
         })}
       </section>
+      </>)}
+      {tab === "hidden" && (
+        <section className="list">
+          {hidden.q.length + hidden.p.length === 0 && <p className="empty">Nothing set aside. "Not for me" on a question, or "Hide" on a piece, puts it here.</p>}
+          {hidden.q.map((id) => {
+            const q = questions.find((x) => x.id === id); if (!q) return null;
+            const c = categories.find((x) => x.key === q.cat)!;
+            return (
+              <div key={id} className="row dim" style={{ ["--accent" as string]: c.accent }}>
+                <span className="kind" style={{ color: c.accent }}>{c.title}</span>
+                <div>
+                  <p className="text"><Link href={questionHref(q)}>{q.text}</Link></p>
+                  <div className="who"><button className="pill subtle" onClick={() => restoreQ(id)}>Bring it back</button></div>
+                </div>
+              </div>
+            );
+          })}
+          {hidden.p.map((id) => {
+            const p = pieces.find((x) => x.id === id); if (!p) return null;
+            const t = themes.find((x) => x.key === p.theme)!;
+            return (
+              <div key={id} className="row dim" style={{ ["--accent" as string]: t.accent }}>
+                <span className="kind" style={{ color: t.accent }}>{t.title}</span>
+                <div>
+                  <p className="text"><Link href={pieceHref(p)}>{headline(p)}</Link></p>
+                  <div className="who"><b>{headlineAuthor(p) === "Still Here" ? p.title : headlineAuthor(p)}</b> &nbsp; <button className="pill subtle" onClick={() => restoreP(id)}>Bring it back</button></div>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
     </main>
   );
 }

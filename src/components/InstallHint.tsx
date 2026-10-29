@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Share } from "./Icons";
 
 type BIP = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -10,6 +10,7 @@ export default function InstallHint() {
   const [ios, setIos] = useState(false);
   const [steps, setSteps] = useState(false);
   const [bip, setBip] = useState<BIP | null>(null);
+  const sheet = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onBip = (e: Event) => { e.preventDefault(); setBip(e as BIP); };
@@ -31,6 +32,14 @@ export default function InstallHint() {
   }, []);
 
   function dismiss() { try { localStorage.setItem("sh-install-hint", "no"); } catch {} setShow(false); }
+  // a tap outside the sheet, or Escape, closes it like "Not now"
+  useEffect(() => {
+    if (!show) return;
+    const onDown = (e: PointerEvent) => { if (sheet.current && !sheet.current.contains(e.target as Node)) dismiss(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") dismiss(); };
+    const t = setTimeout(() => { document.addEventListener("pointerdown", onDown); window.addEventListener("keydown", onKey); }, 400);
+    return () => { clearTimeout(t); document.removeEventListener("pointerdown", onDown); window.removeEventListener("keydown", onKey); };
+  }, [show]);
   async function install() {
     if (!bip) { setSteps(true); return; }
     await bip.prompt();
@@ -40,7 +49,7 @@ export default function InstallHint() {
 
   if (!show) return null;
   return (
-    <aside className="install-sheet" role="dialog" aria-label="Keep Still Here on your home screen">
+    <aside ref={sheet} className="install-sheet" role="dialog" aria-label="Keep Still Here on your home screen">
       <span className="breathe" aria-hidden />
       <div className="install-body">
         <p className="install-title">Keep it close.</p>

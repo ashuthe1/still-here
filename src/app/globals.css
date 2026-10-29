@@ -679,3 +679,16 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 }
 @keyframes trail { 0% { transform: rotate(-14deg) scaleX(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: rotate(-14deg) scaleX(1); opacity: 0; } }
 @media (max-width: 520px) { @keyframes fly { 0% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 0; } 15% { opacity: 1; transform: translate(6px, -4px) rotate(-4deg) scale(1); } 100% { transform: translate(220px, -100px) rotate(-16deg) scale(0.7); opacity: 0; } } }
+
+/* ---------- hidden, tabs ---------- */
+.hidden-note {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 0 18px; padding: 12px 14px; border-radius: 12px; border: 1px dashed var(--line-2); color: var(--ink-2); font-size: 0.9rem;
+}
+.row.dim { opacity: 0.6; }
+.row.dim:hover { opacity: 1; }
+.hidden-row { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.hidden-tag { margin-left: 10px; padding: 2px 8px; border-radius: 999px; border: 1px dashed var(--line-2); font-size: 0.68rem; color: var(--ink-3); letter-spacing: 0.08em; }
+.tabs { display: flex; gap: 4px; margin-top: 28px; padding: 3px; border-radius: 999px; background: var(--bg-3); width: fit-content; max-width: 100%; }
+.tabs button { padding: 8px 16px; border-radius: 999px; font-size: 0.88rem; color: var(--ink-2); white-space: nowrap; transition: background-color 0.2s, color 0.2s; }
+.tabs button.on { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.12); }

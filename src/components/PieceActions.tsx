@@ -9,6 +9,7 @@ import { Bookmark, Share, Printer } from "./Icons";
 import { renderCard, type CardSize } from "@/lib/card";
 import { isStandalone, isPhone } from "@/lib/site";
 import ShapeToggle from "./ShapeToggle";
+import { isHiddenPiece, hidePiece, unhidePiece } from "@/lib/hidden";
 
 export default function PieceActions({ piece, accent, themeTitle, prevHref, nextHref }: { piece: Piece; accent: string; themeTitle: string; prevHref?: string; nextHref?: string }) {
   const [saved, setSaved] = useState(false);
@@ -16,9 +17,14 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
   const [menu, setMenu] = useState<null | "share">(null);
   const [shape, setShape] = useState<CardSize>("feed");
   const [mounted, setMounted] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const router = useRouter();
 
-  useEffect(() => { setSaved(isSaved(piece.id)); setMounted(true); }, [piece.id]);
+  useEffect(() => { setSaved(isSaved(piece.id)); setHidden(isHiddenPiece(piece.id)); setMounted(true); }, [piece.id]);
+  function toggleHide() {
+    if (hidden) { unhidePiece(piece.id); setHidden(false); flash("Back on the shelf"); }
+    else { hidePiece(piece.id); setHidden(true); flash("Hidden. Find it under Yours."); }
+  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -76,7 +82,9 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
         <button className={`pill ${saved ? "on" : ""}`} onClick={onSave}><Bookmark filled={saved} />{saved ? "Saved" : "Save"}</button>
         <button className={`pill ${menu === "share" ? "on" : ""}`} onClick={() => setMenu(menu ? null : "share")}><Share />Share</button>
         <button className="pill" onClick={print}><Printer />Print</button>
+        <button className={`pill subtle ${hidden ? "on" : ""}`} onClick={toggleHide}>{hidden ? "Bring it back" : "Hide"}</button>
       </div>
+      {hidden && <p className="faint small" style={{ marginTop: 10 }}>Hidden pieces stay out of the daily pick and the random button.</p>}
       {menu === "share" && (
         <div className="chooser" role="group" aria-label="Share as an image">
           <span className="eyebrow">Share as an image</span>

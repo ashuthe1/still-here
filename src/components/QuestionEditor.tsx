@@ -12,6 +12,7 @@ import DatePicker from "./DatePicker";
 import EnvelopeArt from "./EnvelopeArt";
 import PaperPlane from "./PaperPlane";
 import { isStandalone, isPhone } from "@/lib/site";
+import { isHiddenQuestion, hideQuestion, unhideQuestion, hiddenQuestions, randomVisible } from "@/lib/hidden";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -28,6 +29,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [opening, setOpening] = useState<string | null>(null);
   const [sealing, setSealing] = useState<{ until: Date; closed: boolean } | null>(null);
   const [flying, setFlying] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [printWithAnswer, setPrintWithAnswer] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -38,6 +40,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     setText(getDraft(question.id));
     setEntries(getEntries(question.id));
     setEditing(null);
+    setHidden(isHiddenQuestion(question.id));
     setLoaded(true);
   }, [question.id]);
 
@@ -120,11 +123,23 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     if (editing === e.t) { setEditing(null); setText(""); }
   }
 
-  function notToday() {
-    const others = questions.filter((q) => q.id !== question.id);
-    const q = others[Math.floor(Math.random() * others.length)];
-    router.push(nextHref.includes("/random/") ? questionHref(q) : nextHref);
+  function nextVisibleHref(): string {
+    const hid = new Set(hiddenQuestions());
+    if (!nextHref.includes("/random/")) {
+      const target = questions.find((q) => questionHref(q) === nextHref);
+      if (target && !hid.has(target.id)) return nextHref;
+    }
+    const q = randomVisible(questions, hid, question.id);
+    return q ? questionHref(q) : "/";
   }
+  function notToday() { router.push(nextVisibleHref()); }
+  function notForMe() {
+    hideQuestion(question.id);
+    setHidden(true);
+    flash("Hidden. It is under Yours if you change your mind.");
+    setTimeout(() => router.push(nextVisibleHref()), 900);
+  }
+  function bringBack() { unhideQuestion(question.id); setHidden(false); flash("Back in the rotation"); }
 
   function latestAnswer(): string { return text.trim() || entries.find((e) => !isSealed(e))?.text || ""; }
 
@@ -176,6 +191,12 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   return (
     <div className="editor">
+      {hidden && (
+        <div className="hidden-note">
+          <span>You set this question aside. It will not come up on its own.</span>
+          <button className="pill" onClick={bringBack}>Bring it back</button>
+        </div>
+      )}
       <label className="eyebrow" htmlFor="answer">{editing ? "Editing an earlier answer" : question.seal ? (entries.length ? "Write another" : "Your letter") : entries.length ? "Answer it again" : "Your answer"}</label>
       <textarea
         id="answer" ref={ta} className="answer" value={text} onChange={(e) => onChange(e.target.value)}
@@ -191,7 +212,10 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         {editing ? (
           <button className="pill" onClick={() => { setEditing(null); setText(getDraft(question.id)); }}>Cancel</button>
         ) : (
-          <button className="pill" onClick={notToday}>Not today</button>
+          <>
+            <button className="pill" onClick={notToday}>Not today</button>
+            {!hidden && <button className="pill subtle" onClick={notForMe} title="Hide this question for good">Not for me</button>}
+          </>
         )}
         <span className="faint autosave">{text && !editing ? "Draft saved as you type" : ""}</span>
       </div>

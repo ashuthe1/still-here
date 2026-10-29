@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { categories, getCategory, questionsFor, questionHref, categoryHref, paragraphs } from "@/lib/content";
-import AnsweredMark from "@/components/AnsweredMark";
+import QuestionList from "@/components/QuestionList";
 import { Printer } from "@/components/Icons";
 
 export function generateStaticParams() { return categories.map((c) => ({ category: c.key })); }
@@ -29,17 +29,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <Link href={`/print/${c.key}/`} className="pill"><Printer /> Print as a booklet</Link>
         </div>
       </section>
-      <section className="list">
-        {list.map((q, i) => (
-          <Link key={q.id} href={questionHref(q)} className="row">
-            <span className="kind">{String(i + 1).padStart(2, "0")}</span>
-            <div>
-              <p className="text">{q.text}</p>
-              <div className="who"><span className="muted">{q.why}</span> <AnsweredMark id={q.id} /></div>
-            </div>
-          </Link>
-        ))}
-      </section>
+      <QuestionList list={list} />
     </main>
   );
 }

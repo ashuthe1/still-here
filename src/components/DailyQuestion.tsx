@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { questions, categories, dailyIndex, questionHref } from "@/lib/content";
 import { ArrowRight, Shuffle } from "./Icons";
+import { hiddenQuestions, pickVisible, randomVisible } from "@/lib/hidden";
 
 export default function DailyQuestion() {
-  const [i, setI] = useState<number | null>(null);
+  const [q, setQ] = useState<typeof questions[number] | null>(null);
   const router = useRouter();
-  useEffect(() => { setI(dailyIndex(new Date(), questions.length, 1)); }, []);
+  useEffect(() => {
+    const start = dailyIndex(new Date(), questions.length, 1);
+    setQ(pickVisible(questions, start, new Set(hiddenQuestions())) ?? questions[start]);
+  }, []);
   function another() {
-    let j = Math.floor(Math.random() * questions.length);
-    if (j === i) j = (j + 1) % questions.length;
-    router.push(questionHref(questions[j]));
+    const next = randomVisible(questions, new Set(hiddenQuestions()), q?.id);
+    if (next) router.push(questionHref(next));
   }
-  if (i === null) return <div className="today skeleton" aria-hidden />;
-  const q = questions[i];
+  if (!q) return <div className="today skeleton" aria-hidden />;
   const c = categories.find((x) => x.key === q.cat)!;
   const date = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
   return (

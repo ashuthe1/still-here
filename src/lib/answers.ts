@@ -101,7 +101,10 @@ export function exportMarkdown(questions: Question[], categoryTitle: (key: strin
 }
 
 export function exportJson(): string {
-  return JSON.stringify({ app: "still-here", version: 1, exported: new Date().toISOString(), answers: read() }, null, 2);
+  let hidden: unknown = { q: [], p: [] }, saved: unknown = [];
+  try { hidden = JSON.parse(localStorage.getItem("sh-hidden") || '{"q":[],"p":[]}'); } catch {}
+  try { saved = JSON.parse(localStorage.getItem("sh-saved") || "[]"); } catch {}
+  return JSON.stringify({ app: "still-here", version: 2, exported: new Date().toISOString(), answers: read(), hidden, saved }, null, 2);
 }
 
 /** Merges a backup into this device without overwriting anything already here. */
@@ -121,5 +124,18 @@ export function importJson(text: string): number {
     if (s[id]) s[id].sort((a, b) => b.t.localeCompare(a.t));
   }
   write(s);
+  // hidden questions and pieces, and saved pieces, merge in too
+  try {
+    if (parsed?.hidden && typeof parsed.hidden === "object") {
+      const cur = JSON.parse(localStorage.getItem("sh-hidden") || '{"q":[],"p":[]}');
+      const q = Array.from(new Set([...(cur.q || []), ...(parsed.hidden.q || [])]));
+      const p = Array.from(new Set([...(cur.p || []), ...(parsed.hidden.p || [])]));
+      localStorage.setItem("sh-hidden", JSON.stringify({ q, p }));
+    }
+    if (Array.isArray(parsed?.saved)) {
+      const cur: string[] = JSON.parse(localStorage.getItem("sh-saved") || "[]");
+      localStorage.setItem("sh-saved", JSON.stringify(Array.from(new Set([...cur, ...parsed.saved]))));
+    }
+  } catch {}
   return added;
 }

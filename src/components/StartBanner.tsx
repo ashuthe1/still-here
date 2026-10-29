@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import { startPath, getQuestionById, questionHref } from "@/lib/content";
 import { hasAnswer } from "@/lib/answers";
 import { ArrowRight } from "./Icons";
+import { hiddenQuestions } from "@/lib/hidden";
 
 /** "Start with 13 questions" for a newcomer; "Continue, 5 of 13" once they have begun. */
 export default function StartBanner() {
   const [done, setDone] = useState(0);
   const [next, setNext] = useState<string>("/ask/start/");
   useEffect(() => {
-    const answered = startPath.filter(hasAnswer);
+    const hid = new Set(hiddenQuestions());
+    const answered = startPath.filter((id) => hasAnswer(id) || hid.has(id));
     setDone(answered.length);
-    const pending = startPath.find((id) => !hasAnswer(id));
+    const pending = startPath.find((id) => !hasAnswer(id) && !hid.has(id));
     const q = pending ? getQuestionById(pending) : undefined;
     setNext(q ? questionHref(q) : "/ask/start/");
   }, []);

@@ -50,7 +50,7 @@ export default function SearchPage() {
             <div className="section-head"><h2>{g.label}</h2><span className="faint" style={{ fontSize: "0.85rem" }}>{list.length}</span></div>
             {list.map((h, i) => (
               <Link key={h.href + i} href={h.href} className="hit" style={{ ["--accent" as string]: h.accent }}>
-                <span className="hit-meta"><span className="dot" aria-hidden />{h.meta}</span>
+                <span className="hit-meta"><span className="dot" aria-hidden />{h.meta}{h.hidden && <span className="hidden-tag">Hidden</span>}</span>
                 <p className="hit-title"><Marked text={h.title} ws={ws} /></p>
                 {h.snippet && <p className="hit-snippet"><Marked text={h.snippet} ws={ws} /></p>}
               </Link>
