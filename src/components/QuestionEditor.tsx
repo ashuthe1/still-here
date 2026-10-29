@@ -13,6 +13,7 @@ import EnvelopeArt from "./EnvelopeArt";
 import PaperPlane from "./PaperPlane";
 import { isStandalone, isPhone } from "@/lib/site";
 import { isHiddenQuestion, hideQuestion, unhideQuestion, hiddenQuestions, randomVisible } from "@/lib/hidden";
+import { shareBlob, haptic } from "@/lib/native";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -69,6 +70,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       return;
     }
     commitSave(v);
+    haptic("light");
     flash("Kept on this device");
   }
 
@@ -79,6 +81,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     // the letter goes in, the flap comes down, the wax lands; then it is really sealed
     setSealing({ until, closed: false });
     setTimeout(() => setSealing({ until, closed: true }), 80);
+    setTimeout(() => haptic("medium"), 1500);
     setTimeout(() => {
       sealEntry(question.id, v, until);
       setDraft(question.id, "");
@@ -92,6 +95,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   function open(e: Entry) {
     if (opening) return;
     setOpening(e.t);
+    haptic("success");
     // let the flap lift and the letter slide out before the words appear
     setTimeout(() => {
       openEntry(question.id, e.t);
@@ -110,6 +114,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     try {
       const blob = await renderSealedCard(categoryTitle, accent, formatDate(e.sealedUntil!), size);
       const file = new File([blob], `still-here-sealed-letter${size === "story" ? "-story" : ""}.png`, { type: "image/png" });
+      if (await shareBlob(blob, file.name)) return;
       const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
       if (phone && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
       else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); flash("Image saved to your downloads"); }
@@ -149,6 +154,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     try {
       const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "question", latestAnswer(), false, shape);
       const file = new File([blob], `still-here-${question.slug}${withAnswer ? "-answer" : ""}${shape === "story" ? "-story" : ""}.png`, { type: "image/png" });
+      if (await shareBlob(blob, file.name)) return;
       const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
       if (phone && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file] });
@@ -166,6 +172,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     try {
       const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "ruled", latestAnswer(), true);
       const file = new File([blob], `still-here-${question.slug}-sheet.png`, { type: "image/png" });
+      if (await shareBlob(blob, file.name)) { flash("Choose Print, or save it"); return; }
       if (navigator.canShare?.({ files: [file] })) {
         flash("Choose Print, or Save to Files");
         await navigator.share({ files: [file] });

@@ -11,6 +11,16 @@
     "start": "npx serve out"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4",
     "next": "^15.5.28",
     "react": "19.1.0",
     "react-dom": "19.1.0"

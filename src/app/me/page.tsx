@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { pieces, themes, questions, categories, pieceHref, questionHref, headline, headlineAuthor } from "@/lib/content";
 import { getSaved } from "@/lib/saved";
 import { getHidden, unhideQuestion, unhidePiece } from "@/lib/hidden";
+import { saveText } from "@/lib/native";
 import { getAll, exportMarkdown, exportJson, importJson, formatDate, isSealed, isReady, daysUntil, sealedLetters, type Entry } from "@/lib/answers";
 import { Envelope } from "@/components/Icons";
 
-function download(name: string, text: string, type: string) {
+async function download(name: string, text: string, type: string) {
+  if (await saveText(name, text)) return;
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Share } from "./Icons";
+import { isNative } from "@/lib/native";
 
 type BIP = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
@@ -16,6 +17,7 @@ export default function InstallHint() {
     const onBip = (e: Event) => { e.preventDefault(); setBip(e as BIP); };
     window.addEventListener("beforeinstallprompt", onBip);
     try {
+      if (isNative()) return;
       if (localStorage.getItem("sh-install-hint") === "no") return;
       const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
       if (standalone) return;

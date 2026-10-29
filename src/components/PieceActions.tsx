@@ -10,6 +10,7 @@ import { renderCard, type CardSize } from "@/lib/card";
 import { isStandalone, isPhone } from "@/lib/site";
 import ShapeToggle from "./ShapeToggle";
 import { isHiddenPiece, hidePiece, unhidePiece } from "@/lib/hidden";
+import { shareBlob, haptic } from "@/lib/native";
 
 export default function PieceActions({ piece, accent, themeTitle, prevHref, nextHref }: { piece: Piece; accent: string; themeTitle: string; prevHref?: string; nextHref?: string }) {
   const [saved, setSaved] = useState(false);
@@ -45,6 +46,7 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
   function onSave() {
     const on = toggleSaved(piece.id);
     setSaved(on);
+    haptic("light");
     flash(on ? "Saved" : "Removed");
   }
 
@@ -53,6 +55,7 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
     try {
       const blob = await renderCard(piece, accent, shape);
       const file = new File([blob], `still-here-${piece.slug}${shape === "story" ? "-story" : ""}.png`, { type: "image/png" });
+      if (await shareBlob(blob, file.name)) return;
       if (isPhone() && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file] });
       } else {
@@ -64,8 +67,17 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
     } catch { flash("Could not make image"); }
   }
 
-  function print() {
-    if (isStandalone() && isPhone()) { flash("Open this page in Safari to print"); return; }
+  async function print() {
+    if (isStandalone() && isPhone()) {
+      // no print dialog in an installed app: hand a paper sheet to the share sheet instead
+      try {
+        const blob = await renderCard(piece, accent, "feed");
+        if (await shareBlob(blob, `still-here-${piece.slug}-sheet.png`)) { flash("Choose Print, or save it"); return; }
+        const file = new File([blob], `still-here-${piece.slug}-sheet.png`, { type: "image/png" });
+        if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+      } catch {}
+      flash("Open this page in a browser to print"); return;
+    }
     document.body.classList.add("print-sheet-mode");
     const done = () => { document.body.classList.remove("print-sheet-mode"); window.removeEventListener("afterprint", done); };
     window.addEventListener("afterprint", done);

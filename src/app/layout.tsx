@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PWA from "@/components/PWA";
+import Native from "@/components/Native";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
         </div>
         <PWA />
+        <Native />
       </body>
     </html>
   );
