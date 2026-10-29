@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -42,6 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" data-theme="dark" suppressHydrationWarning className={`${serif.variable} ${sans.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        {/* Visit counts only. Umami sets no cookies and stores no personal data; nothing anyone writes is ever sent. */}
+        <Script src="https://cloud.umami.is/script.js" data-website-id="20d61075-c837-44d1-9748-7723d628ff97" strategy="afterInteractive" />
       </head>
       <body>
         <div className="wrap">

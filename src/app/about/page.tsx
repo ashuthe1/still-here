@@ -32,7 +32,7 @@ export default function About() {
 
       <h2>Privacy</h2>
       <p>
-        <strong>Everything you write stays on this device.</strong> There are no accounts, no server, no tracking, and nothing is sent anywhere. From <Link className="u" href="/me/">Yours</Link> you can export all your answers as one text file, download a backup, or restore one on a new phone. Clearing your browser data will clear your answers, so keep a backup if they matter to you.
+        <strong>Everything you write stays on this device.</strong> There are no accounts and no server, and nothing you write is sent anywhere. We count visits with Umami, which sets no cookies and stores no personal data. It sees which pages are opened, never what is written on them. From <Link className="u" href="/me/">Yours</Link> you can export all your answers as one text file, download a backup, or restore one on a new phone. Clearing your browser data will clear your answers, so keep a backup if they matter to you.
       </p>
 
       <h2>Credits</h2>
