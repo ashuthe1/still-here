@@ -15,6 +15,7 @@ export default function Footer() {
         <Link href="/read/">Read</Link>
         <Link href="/me/">Yours</Link>
         <Link href="/about/">About</Link>
+        <Link href="/privacy/">Privacy</Link>
       </nav>
     </footer>
   );

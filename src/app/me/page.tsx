@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { pieces, themes, questions, categories, pieceHref, questionHref, headline, headlineAuthor } from "@/lib/content";
+import { pieces, themes, questions, categories, startPath, pieceHref, questionHref, headline, headlineAuthor } from "@/lib/content";
 import { getSaved } from "@/lib/saved";
 import { getHidden, unhideQuestion, unhidePiece } from "@/lib/hidden";
 import { saveText } from "@/lib/native";
@@ -90,7 +90,7 @@ export default function MePage() {
         </section>
       )}
       <section className="list">
-        {answered.length === 0 && <p className="empty">Nothing written yet. <Link href="/ask/start/" className="u">Start with twelve questions.</Link></p>}
+        {answered.length === 0 && <p className="empty">Nothing written yet. <Link href="/ask/start/" className="u">Start with {startPath.length} questions.</Link></p>}
         {answered.map((q) => {
           const c = categories.find((x) => x.key === q.cat)!;
           const e = answers[q.id].find((x) => !isSealed(x))!;
