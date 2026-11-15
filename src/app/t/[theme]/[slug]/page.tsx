@@ -5,6 +5,7 @@ import { pieces, getTheme, getPiece, piecesFor, pieceHref, themeHref, headline, 
 import PieceBody from "@/components/PieceBody";
 import PieceActions from "@/components/PieceActions";
 import { ArrowLeft, ArrowRight } from "@/components/Icons";
+import SwipeNav from "@/components/SwipeNav";
 
 export function generateStaticParams() { return pieces.map((p) => ({ theme: p.theme, slug: p.slug })); }
 
@@ -37,6 +38,7 @@ export default async function PiecePage({ params }: { params: Promise<{ theme: s
           <PieceActions piece={p} accent={t.accent} themeTitle={t.title} prevHref={prev && pieceHref(prev)} nextHref={next && pieceHref(next)} />
         </div>
       </div>
+      <SwipeNav prevHref={prev ? pieceHref(prev) : undefined} nextHref={next ? pieceHref(next) : undefined} />
       <nav className="piece-nav" aria-label="Previous and next">
         {prev ? <Link href={pieceHref(prev)} className="n prev"><ArrowLeft /><span><small>Previous</small>{prev.title || headlineAuthor(prev)}</span></Link> : <span className="n" />}
         <span className="mid" aria-hidden>{i + 1} / {list.length}</span>

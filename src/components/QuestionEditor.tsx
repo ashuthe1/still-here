@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Question } from "@/lib/content";
 import { questions, questionHref } from "@/lib/content";
-import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
+import { addEntry, deleteEntry, restoreEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode, type CardSize } from "@/lib/card";
 import ShapeToggle from "./ShapeToggle";
 import { Share, Printer, Seal, LinkIcon } from "./Icons";
@@ -20,6 +20,8 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const [entries, setEntries] = useState<Entry[]>([]);
   const [editing, setEditing] = useState<string | null>(null);
   const [toast, setToast] = useState("");
+  const [undo, setUndo] = useState<Entry | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [menu, setMenu] = useState<null | "share" | "print" | "seal">(null);
   const [shape, setShape] = useState<CardSize>("feed");
@@ -123,8 +125,11 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   function startEdit(e: Entry) { setEditing(e.t); setText(e.text); ta.current?.focus(); }
   function remove(e: Entry) {
-    if (!confirm("Delete this answer? This cannot be undone.")) return;
     deleteEntry(question.id, e.t); setEntries(getEntries(question.id));
+    // no confirm dialog: delete at once, and offer a few seconds to take it back
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    setUndo(e);
+    undoTimer.current = setTimeout(() => setUndo(null), 6000);
     if (editing === e.t) { setEditing(null); setText(""); }
   }
 
@@ -362,7 +367,17 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         </div>,
         document.body
       )}
-      <div className={`toast ${toast ? "show" : ""}`} role="status">{toast}</div>
+      <div className={`toast ${toast && !undo ? "show" : ""}`} role="status">{toast}</div>
+      <div className={`toast undo ${undo ? "show" : ""}`} role="status" aria-live="polite">
+        <span>{undo && isSealed(undo) ? "Letter deleted" : "Answer deleted"}</span>
+        <button type="button" onClick={() => {
+          if (!undo) return;
+          restoreEntry(question.id, undo);
+          setEntries(getEntries(question.id));
+          setUndo(null);
+          if (undoTimer.current) clearTimeout(undoTimer.current);
+        }}>Undo</button>
+      </div>
     </div>
   );
 }

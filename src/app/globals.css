@@ -727,3 +727,14 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 /* Android draws apps edge to edge; keep scrolled content from running under the status bar.
    Zero height wherever there is no top inset (browsers, iPhone with an opaque status bar). */
 .sb-shield { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 55; pointer-events: none; }
+
+/* delete toast with an Undo action */
+.toast.undo { display: flex; align-items: center; gap: 18px; padding: 8px 8px 8px 18px; }
+.toast.undo.show { pointer-events: auto; }
+.toast.undo button { padding: 6px 12px; border-radius: 999px; font-weight: 600; color: var(--accent); background: color-mix(in oklab, var(--accent) 16%, transparent); }
+
+/* a short slide as a swipe hands over to the next page */
+:root[data-swipe="next"] .piece-main { animation: swipe-next 0.35s var(--ease) both; }
+:root[data-swipe="prev"] .piece-main { animation: swipe-prev 0.35s var(--ease) both; }
+@keyframes swipe-next { to { opacity: 0; transform: translateX(-40px); } }
+@keyframes swipe-prev { to { opacity: 0; transform: translateX(40px); } }

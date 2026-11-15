@@ -6,7 +6,7 @@ import { initNative, syncStatusBar, isNative } from "@/lib/native";
 export default function Native() {
   const router = useRouter();
   useEffect(() => {
-    initNative();
+    initNative((path) => router.push(path));
     // The Android shell serves the home page for any folder path it is asked for directly
     // (a reload, or a link opening the app), and the router caches it under that address.
     // A refresh fetches the real page for the current address.

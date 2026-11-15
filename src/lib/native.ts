@@ -53,9 +53,27 @@ export async function syncStatusBar() {
   } catch {}
 }
 
+/** The in-app path for a public link, or null if the link is not ours. */
+export function pathFromLink(link: string): string | null {
+  try {
+    const u = new URL(link);
+    if (u.hostname !== new URL(SITE_URL).hostname) return null;
+    return (u.pathname || "/") + u.search;
+  } catch { return null; }
+}
+
 /** Runs once at start-up in the app: back button walks history, splash goes away, status bar matches the theme. */
-export async function initNative() {
+export async function initNative(openPath?: (path: string) => void) {
   if (!isNative()) return;
+  try {
+    const { App } = await import("@capacitor/app");
+    // a link tapped elsewhere while the app is running
+    App.addListener("appUrlOpen", ({ url }) => { const p = pathFromLink(url); if (p && openPath) openPath(p); });
+    // a link that launched the app from cold
+    const launch = await App.getLaunchUrl();
+    const p = launch?.url ? pathFromLink(launch.url) : null;
+    if (p && p !== "/" && openPath) openPath(p);
+  } catch {}
   try {
     const { App } = await import("@capacitor/app");
     App.addListener("backButton", ({ canGoBack }) => {

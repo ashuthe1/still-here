@@ -64,6 +64,14 @@ export function updateEntry(id: string, t: string, text: string) {
   s[id] = (s[id] || []).map((e) => (e.t === t ? { ...e, text } : e));
   write(s);
 }
+/** Puts a deleted entry back exactly as it was, keeping newest first. */
+export function restoreEntry(id: string, entry: Entry) {
+  const s = read();
+  const list = (s[id] || []).filter((e) => e.t !== entry.t);
+  s[id] = [...list, entry].sort((a, b) => b.t.localeCompare(a.t));
+  write(s);
+}
+
 export function deleteEntry(id: string, t: string) {
   const s = read();
   s[id] = (s[id] || []).filter((e) => e.t !== t);

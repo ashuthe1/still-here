@@ -5,6 +5,7 @@ import { questions, getCategory, getQuestion, questionsFor, questionHref, catego
 import QuestionEditor from "@/components/QuestionEditor";
 import FirstVisitNote from "@/components/FirstVisitNote";
 import AnsweredNote from "@/components/AnsweredNote";
+import SwipeNav from "@/components/SwipeNav";
 import { ArrowLeft, ArrowRight } from "@/components/Icons";
 
 export function generateStaticParams() { return questions.map((q) => ({ category: q.cat, slug: q.slug })); }
@@ -52,6 +53,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ categ
           )}
         </article>
       </div>
+      <SwipeNav prevHref={prev ? questionHref(prev) : undefined} nextHref={next ? questionHref(next) : undefined} />
       <nav className="piece-nav" aria-label="Previous and next">
         {prev ? <Link href={questionHref(prev)} className="n prev"><ArrowLeft /><span><small>Previous</small>{prev.text}</span></Link> : <span className="n" />}
         <span className="mid" aria-hidden>{i + 1} / {list.length}</span>

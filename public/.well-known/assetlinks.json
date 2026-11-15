@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ashutoshgautam.stillhere",
+      "sha256_cert_fingerprints": [
+        "7C:FA:BE:9B:B5:B9:F1:D6:C5:67:D8:8B:13:7A:55:FD:E1:0C:DB:78:57:EE:04:E3:01:CD:9B:EA:55:43:BB:34"
+      ]
+    }
+  }
+]
