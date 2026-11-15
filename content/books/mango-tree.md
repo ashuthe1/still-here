@@ -4,7 +4,8 @@ hook: "Two boys, one tree, and twenty years of not calling."
 kind: story
 motif: tree
 accent: "#8fb36b"
-order: 39
+order: 11
+moods: [lonely, home, love]
 ask: "people/who-have-you-drifted-from-that-you-miss"
 close: "Someone you drifted from would probably love to hear from you."
 ---

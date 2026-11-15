@@ -4,7 +4,8 @@ hook: "Epictetus was born a slave and became a teacher. His students wrote down 
 kind: notes
 motif: keys
 accent: "#9a8fc4"
-order: 36
+order: 48
+moods: [overthinking]
 credit: "After Epictetus, the Handbook (Enchiridion), paraphrased"
 ask: "mind/what-are-you-giving-attention-to-that-does"
 close: "Sort one worry today: is it up to you, or not?"

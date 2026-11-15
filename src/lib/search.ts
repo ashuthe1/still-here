@@ -1,11 +1,11 @@
 // On-device search over questions, the reader's own answers, and the shelf.
 // Plain word matching: every word in the query has to appear somewhere in the text.
-import { questions, pieces, categories, themes, questionHref, pieceHref, headline, headlineAuthor, type Question, type Piece } from "./content";
+import { questions, pieces, categories, themes, books, bookHref, BOOK_SHELVES, questionHref, pieceHref, headline, headlineAuthor, type Question, type Piece } from "./content";
 import { getAll, formatDate } from "./answers";
 import { getHidden } from "./hidden";
 
 export interface Hit {
-  kind: "answer" | "question" | "piece";
+  kind: "answer" | "question" | "byte" | "piece";
   href: string;
   title: string;      // the question text or the piece headline
   snippet: string;    // the matching passage
@@ -72,7 +72,22 @@ export function search(query: string, limitPerGroup = 12): Hit[] {
     }
   }
 
-  // 3. the shelf
+  // 3. bytes: title, cover line and every page
+  n = 0;
+  for (const b of books) {
+    if (n >= limitPerGroup) break;
+    const pages = b.pages.join("\n").split("\n")
+      .filter((l) => !l.startsWith("@"))
+      .map((l) => l.replace(/^(# |~ |> |< |[AB]: )/, "").replace(/==/g, "").trim())
+      .filter(Boolean).join(" ");
+    if (matches(`${b.title} ${b.hook} ${pages}`, ws)) {
+      const shelf = BOOK_SHELVES.find((x) => x.kind === b.kind);
+      hits.push({ kind: "byte", href: bookHref(b), title: b.title, snippet: matches(`${b.title} ${b.hook}`, ws) ? b.hook : snippet(pages, ws), meta: `Bytes · ${shelf?.title ?? ""}`, accent: b.accent });
+      n++;
+    }
+  }
+
+  // 4. the shelf
   n = 0;
   for (const p of pieces) {
     if (n >= limitPerGroup) break;

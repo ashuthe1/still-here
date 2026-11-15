@@ -4,7 +4,8 @@ hook: "From someone who has done it many times, mostly asleep."
 kind: creature
 motif: bear
 accent: "#8a9fc4"
-order: 22
+order: 16
+moods: [tired, stuck]
 ask: "lighter/what-have-you-survived-that-you-have-never"
 close: "If it's winter where you are, you're allowed to be a bear for a while."
 ---

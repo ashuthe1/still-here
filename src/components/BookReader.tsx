@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Share, LinkIcon } from "./Icons";
 import { renderBookPage } from "@/lib/bookcard";
 import { shareBlob, shareBlobs, shareLink, haptic } from "@/lib/native";
 import { isPhone } from "@/lib/site";
+import { saveProgress } from "@/lib/bytes";
 
 export default function BookReader({ book, next }: { book: Book; next?: Book }) {
   const total = pageCount(book);
@@ -68,6 +69,7 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
   }, [at, go]);
 
   useEffect(() => { if (at > 0) haptic("light"); }, [at]);
+  useEffect(() => { if (at > 0) saveProgress(book.slug, at, total); }, [at, book.slug, total]);
 
   const fileName = (i: number) => `still-here-${book.slug}-${String(i + 1).padStart(2, "0")}.png`;
 
@@ -112,7 +114,7 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
     <div className="reader" style={{ ["--accent" as string]: book.accent }}>
       <div className="reader-stage">
         <button className="reader-arrow prev" onClick={() => go(at - 1)} disabled={at === 0} aria-label="Previous page"><ArrowLeft /></button>
-        <div className="pager" ref={ref} tabIndex={0} aria-roledescription="book" aria-label={book.title}>
+        <div className="pager" ref={ref} tabIndex={0} aria-roledescription="byte" aria-label={book.title}>
           <div className="slot" aria-label={`Page 1 of ${total}`}><Cover book={book} /></div>
           {book.pages.map((_, i) => (
             <div className="slot" key={i} aria-label={`Page ${i + 2} of ${total}`}><Page book={book} index={i} /></div>
@@ -131,8 +133,8 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
       <div className="actions reader-actions">
         <button className={`pill ${menu ? "on" : ""}`} onClick={() => setMenu(!menu)} disabled={busy}><Share />{busy ? "Making…" : "Share"}</button>
         {at === total - 1 && next
-          ? <Link href={bookHref(next)} className="pill">Next book <ArrowRight /></Link>
-          : <button className="pill subtle" onClick={() => go(at === total - 1 ? 0 : at + 1)}>{at === total - 1 ? "Start again" : at === 0 ? "Open the book" : "Turn the page"}</button>}
+          ? <Link href={bookHref(next)} className="pill">Next byte <ArrowRight /></Link>
+          : <button className="pill subtle" onClick={() => go(at === total - 1 ? 0 : at + 1)}>{at === total - 1 ? "Start again" : at === 0 ? "Start reading" : "Turn the page"}</button>}
       </div>
 
       {menu && (
@@ -144,7 +146,7 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
           </div>
           <div className="chooser-split">
             <span className="eyebrow">Or send the link</span>
-            <p className="muted small">Opens the book, with a preview card.</p>
+            <p className="muted small">Opens this byte, with a preview card.</p>
             <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
           </div>
         </div>

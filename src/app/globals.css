@@ -902,3 +902,79 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 .book-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 @media (min-width: 720px) { .book-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } }
 @media (min-width: 1100px) { .book-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+/* continue reading, read marks */
+.shelf-book { position: relative; }
+.read-mark {
+  position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px;
+  font-size: 0.68rem; letter-spacing: 0.04em; background: var(--bg); color: var(--ink-2); border: 1px solid var(--line-2);
+}
+.continue-byte {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px; position: relative; overflow: hidden;
+  padding: 16px 18px 18px; margin-bottom: 16px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--bg-2);
+  transition: border-color 0.2s var(--ease);
+}
+.continue-byte:hover { border-color: var(--accent); }
+.continue-byte svg { width: 18px; height: 18px; color: var(--ink-2); }
+.continue-text { display: flex; flex-direction: column; gap: 3px; }
+.continue-text .serif { font-size: 1.2rem; font-weight: 300; }
+.continue-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line); }
+.continue-bar span { display: block; height: 100%; background: var(--accent); }
+.books-page .continue-byte { margin: 22px 0 0; }
+
+/* onboarding */
+.onboard { min-height: min(560px, 86dvh); display: flex; flex-direction: column; }
+.onboard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.onboard-skip { color: var(--ink-3); font-size: 0.85rem; padding: 6px 4px; }
+.onboard-skip:hover { color: var(--ink); }
+.onboard-step { flex: 1; display: flex; flex-direction: column; animation: rise 0.45s var(--ease) both; }
+.onboard-step .eyebrow { margin-bottom: 10px; }
+.onboard-step h1 { margin-bottom: 14px; }
+.onboard-step p { margin: 0; color: var(--ink-2); font-size: 1.02rem; line-height: 1.55; max-width: 30rem; }
+.onboard-art { width: 132px; height: 132px; margin: auto 0 0 auto; color: var(--ink); }
+.onboard-doors { display: grid; gap: 10px; margin-top: 6px; }
+.onboard-door {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 16px 18px;
+  border: 1px solid var(--line-2); border-radius: 14px; background: var(--bg);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.onboard-door:hover { border-color: var(--accent); transform: translateY(-1px); }
+.onboard-door .serif { grid-column: 1; font-size: 1.15rem; }
+.onboard-door svg { grid-column: 2; grid-row: 1 / span 2; width: 18px; height: 18px; }
+.onboard-look { margin-top: 14px; align-self: flex-start; }
+.onboard-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 22px; }
+.onboard-dots { display: flex; gap: 7px; }
+.onboard-dots button { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); transition: all 0.25s var(--ease); }
+.onboard-dots button.on { width: 20px; border-radius: 4px; background: var(--accent); }
+
+/* Read home: greeting, the byte to start with, moods, rows */
+.read-top { padding-top: clamp(14px, 3vh, 36px); padding-bottom: 8px; }
+.greeting { margin-bottom: 18px; }
+.greeting h1 { margin: 0; font-weight: 300; font-size: clamp(2rem, 7vw, 3.1rem); letter-spacing: -0.02em; line-height: 1.05; animation: rise 0.6s var(--ease) both; }
+.greeting p { margin: 8px 0 0; font-size: 1.02rem; animation: rise 0.6s 0.1s var(--ease) both; }
+.today-byte {
+  display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); gap: clamp(16px, 4vw, 36px); align-items: center;
+  padding: clamp(14px, 3vw, 24px); border: 1px solid var(--line-2); border-radius: 20px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 12%, var(--bg-2)), var(--bg-2) 60%);
+  transition: border-color 0.2s var(--ease), transform 0.25s var(--ease);
+}
+.today-byte:hover { border-color: var(--accent); transform: translateY(-2px); }
+@media (min-width: 720px) { .today-byte { grid-template-columns: 260px minmax(0, 1fr); max-width: 760px; } }
+.today-cover { transform: rotate(-1.2deg); }
+.today-cover .bp-foot span:last-child { display: none; }
+.tb-text { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 0; }
+.tb-text h2 { margin: 0; font-weight: 300; font-size: clamp(1.35rem, 4.6vw, 2.2rem); line-height: 1.12; letter-spacing: -0.01em; }
+.tb-text p { margin: 0; font-size: 0.95rem; line-height: 1.45; }
+.today-go { margin-top: 8px; pointer-events: none; }
+@media (max-width: 520px) { .tb-text p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } .today-go { padding: 9px 14px; font-size: 0.9rem; } }
+.read-top .continue-byte { max-width: 760px; }
+
+.mood-section { padding-top: clamp(18px, 4vh, 40px); padding-bottom: 8px; }
+.mood-title { margin: 0 0 14px; font-family: var(--font-serif), Georgia, serif; font-weight: 400; font-size: clamp(1.4rem, 4vw, 1.9rem); }
+.mood-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip.on { color: var(--ink); border-color: var(--accent); background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.mood-pick { margin-top: 16px; animation: rise 0.4s var(--ease) both; }
+.mood-pick > p { margin: 0 0 12px; }
+.byte-row { padding-top: clamp(18px, 3vh, 32px); padding-bottom: 4px; }
+.byte-row h2 a:hover { color: var(--accent); }
+.read-home .hero-tight { padding-top: clamp(28px, 6vh, 64px); }

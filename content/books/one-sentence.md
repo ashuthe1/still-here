@@ -4,7 +4,8 @@ hook: "A failed essay, a strict teacher, and a note in the margin."
 kind: story
 motif: note
 accent: "#d26a5a"
-order: 23
+order: 27
+moods: [stuck, smile]
 ask: "who/what-are-you-quietly-good-at-that-has"
 close: "Someone saw something in you before you did."
 ---

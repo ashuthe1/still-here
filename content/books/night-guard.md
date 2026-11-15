@@ -4,7 +4,8 @@ hook: "Nineteen years of opening the same gate, and the night the building notic
 kind: story
 motif: keys
 accent: "#8a8fd0"
-order: 41
+order: 24
+moods: [love, smile]
 ask: "people/who-do-you-owe-a-thank-you-that-you"
 close: "Notice the people who keep things running quietly. Then tell them."
 ---

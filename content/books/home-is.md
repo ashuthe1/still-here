@@ -4,7 +4,8 @@ hook: "None of them come with the rent."
 kind: list
 motif: plant
 accent: "#d7a26b"
-order: 32
+order: 29
+moods: [home, lonely]
 ask: "roots/what-did-home-smell-sound-and-look-like"
 close: "Add one of these to wherever you are tonight."
 ---

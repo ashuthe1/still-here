@@ -26,7 +26,7 @@ export default function Header() {
     try { localStorage.setItem("sh-theme", next); } catch {}
     setTheme(next);
   }
-  const onRead = path === "/" || path.startsWith("/read") || path.startsWith("/t/") || path.startsWith("/b/") || path.startsWith("/books") || path.startsWith("/random");
+  const onRead = path === "/" || path.startsWith("/read") || path.startsWith("/t/") || path.startsWith("/b/") || path.startsWith("/bytes") || path.startsWith("/books") || path.startsWith("/random");
   const onAsk = path.startsWith("/ask") || path.startsWith("/print") || path.startsWith("/saved");
   return (
     <header className="hdr">

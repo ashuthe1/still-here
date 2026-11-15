@@ -4,7 +4,8 @@ hook: "Nothing heroic. Just a few small things that help."
 kind: list
 motif: chai
 accent: "#a39ac4"
-order: 45
+order: 12
+moods: [tired, lonely]
 ask: "lighter/what-do-you-need-to-hear-from-someone"
 close: "Bad days end. This one will too."
 ---

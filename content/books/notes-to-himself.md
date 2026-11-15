@@ -4,7 +4,8 @@ hook: "Marcus Aurelius ran an empire and kept a private notebook. A few pages fr
 kind: notes
 motif: lamp
 accent: "#b89b6a"
-order: 17
+order: 45
+moods: [overthinking, stuck]
 credit: "After Marcus Aurelius, Meditations, in George Long's translation (1862)"
 ask: "time/what-is-a-good-life-in-one-paragraph"
 close: "Write your own note, the kind you would only show yourself."

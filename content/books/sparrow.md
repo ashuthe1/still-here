@@ -4,7 +4,8 @@ hook: "From someone who has lived in a streetlight, a gutter, and one very nice 
 kind: creature
 motif: sparrow
 accent: "#c9a07a"
-order: 38
+order: 39
+moods: [lonely, home]
 ask: "roots/where-do-you-feel-you-belong-and-when"
 close: "Home is mostly the place you decide to keep coming back to."
 ---

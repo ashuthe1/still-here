@@ -5,7 +5,8 @@ kind: pair
 motif: glasses
 accent: "#6f9fb8"
 labels: [What he did, What he meant]
-order: 6
+order: 13
+moods: [home, love]
 ask: "people/what-have-you-learned-about-love-from-someone"
 close: "Some people say it with their hands. Try saying it back with words, just once."
 ---

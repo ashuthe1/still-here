@@ -4,7 +4,8 @@ hook: "A Sunday, a pile of laundry, and the questions I had never asked her."
 kind: talk
 motif: chai
 accent: "#d7a26b"
-order: 4
+order: 6
+moods: [home, love]
 ask: "roots/what-family-story-do-you-tell-most-why"
 close: "Ask the oldest person you love one question this week."
 ---

@@ -4,7 +4,8 @@ hook: "The Tao Te Ching is about two and a half thousand years old and very shor
 kind: notes
 motif: wave
 accent: "#6fa8b8"
-order: 49
+order: 46
+moods: [overthinking, tired]
 credit: "After Lao Tzu, Tao Te Ching, in a free paraphrase"
 ask: "time/what-would-your-days-look-like-if-you"
 close: "Try being a little more like water this week: soft, steady, going round things."

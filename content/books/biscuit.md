@@ -4,7 +4,8 @@ hook: "A retired man, a worried daughter, and a dog on a trial basis."
 kind: story
 motif: dog
 accent: "#c9a66b"
-order: 25
+order: 30
+moods: [lonely, smile]
 ask: "lighter/when-did-you-last-do-something-for-the"
 close: "Sometimes the thing that gets you out of the house has four legs."
 ---

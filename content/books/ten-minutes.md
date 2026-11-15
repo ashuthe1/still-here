@@ -4,7 +4,8 @@ hook: "For the days when you don't have an hour."
 kind: list
 motif: kettle
 accent: "#d9b44a"
-order: 16
+order: 40
+moods: [tired, stuck]
 ask: "daily/what-was-the-best-ten-minutes-of-today"
 close: "Pick one for tonight."
 ---

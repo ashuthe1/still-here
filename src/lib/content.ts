@@ -164,6 +164,8 @@ export interface Book {
   ask: string;      // the question the last page hands over to
   close: string;    // the line on the last page, above the question
   pages: string[];  // raw page text
+  moods: string[];  // keys of MOODS this byte suits
+  mins: number;     // reading time, rounded
 }
 
 export const books: Book[] = ((data as { books?: Book[] }).books ?? []) as Book[];
@@ -235,3 +237,15 @@ export const BOOK_SHELVES: { kind: BookKind; title: string; blurb: string }[] = 
   { kind: "notes", title: "Old notebooks", blurb: "Very old books, in plain words." },
 ];
 export const booksOfKind = (k: BookKind) => books.filter((b) => b.kind === k);
+
+/** "How are you feeling?" on Read: each mood opens the bytes tagged with it. */
+export const MOODS: { key: string; label: string; line: string }[] = [
+  { key: "tired", label: "Tired", line: "For when you're running on empty." },
+  { key: "overthinking", label: "Overthinking", line: "For a busy head." },
+  { key: "home", label: "Missing home", line: "Families, kitchens, the people who raised you." },
+  { key: "lonely", label: "A bit lonely", line: "Small kindnesses, from strangers and old friends." },
+  { key: "stuck", label: "Stuck", line: "For starting again, slowly." },
+  { key: "love", label: "Thinking of someone", line: "The quiet ways people love each other." },
+  { key: "smile", label: "Need a smile", line: "Gentle, a little funny, very short." },
+];
+export const booksForMood = (m: string) => books.filter((b) => b.moods.includes(m));

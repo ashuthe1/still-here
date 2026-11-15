@@ -6,6 +6,7 @@ import { search, words, highlight, type Hit } from "@/lib/search";
 const GROUPS: { kind: Hit["kind"]; label: string }[] = [
   { kind: "answer", label: "What you wrote" },
   { kind: "question", label: "Questions" },
+  { kind: "byte", label: "Bytes" },
   { kind: "piece", label: "From the shelf" },
 ];
 
@@ -40,7 +41,7 @@ export default function SearchPage() {
         ref={box} className="search-box" type="search" value={q} onChange={(e) => setQ(e.target.value)}
         placeholder="A word, a name, a feeling…" aria-label="Search questions, your answers, and the shelf" autoComplete="off"
       />
-      {!q && <p className="faint search-hint">Searches the questions, everything you have written, and the shelf. Nothing leaves this device.</p>}
+      {!q && <p className="faint search-hint">Searches the questions, everything you have written, the Bytes, and the shelf. Nothing leaves this device.</p>}
       {q && ws.length > 0 && hits.length === 0 && <p className="empty">Nothing for that. Try one word.</p>}
       {GROUPS.map((g) => {
         const list = hits.filter((h) => h.kind === g.kind);

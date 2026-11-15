@@ -4,7 +4,8 @@ hook: "From someone who has hugged the same tree for most of their life."
 kind: creature
 motif: koala
 accent: "#a3a8b8"
-order: 26
+order: 36
+moods: [love, tired]
 ask: "people/who-do-you-owe-a-thank-you-that-you"
 close: "Hold on to the people who hold you up. Then tell them."
 ---

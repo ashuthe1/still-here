@@ -4,7 +4,8 @@ hook: "From someone who is mostly soft, with a few spikes for emergencies."
 kind: creature
 motif: hedgehog
 accent: "#c99a6b"
-order: 20
+order: 22
+moods: [lonely, love]
 ask: "people/who-makes-you-feel-most-like-yourself-what"
 close: "Somebody out there doesn't mind the spikes."
 ---

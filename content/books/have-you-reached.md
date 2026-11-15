@@ -5,6 +5,7 @@ kind: story
 motif: phone
 accent: "#e07a6a"
 order: 1
+moods: [home, smile, love]
 ask: "people/how-do-you-show-love-when-words-are"
 close: "Somebody out there reads your \"hmm\" very carefully."
 ---

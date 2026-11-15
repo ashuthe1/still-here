@@ -4,7 +4,8 @@ hook: "A six-year-old who could not sleep, and a mother who answered honestly."
 kind: talk
 motif: night
 accent: "#8a8fd0"
-order: 29
+order: 26
+moods: [love, smile, home]
 ask: "roots/who-in-your-childhood-made-you-feel-safe"
 close: "Somebody once answered all your questions at bedtime. You probably still use some of the answers."
 ---

@@ -4,7 +4,8 @@ hook: "From someone very large who mostly keeps quiet."
 kind: creature
 motif: whale
 accent: "#6f8fb8"
-order: 40
+order: 42
+moods: [tired, overthinking, lonely]
 ask: "who/what-do-you-drift-toward-when-nobody-is"
 close: "Quiet doesn't mean shallow."
 ---

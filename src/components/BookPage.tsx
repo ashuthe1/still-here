@@ -53,7 +53,7 @@ export function Cover({ book }: { book: Book }) {
       <h2 className="bp-title">{book.title}</h2>
       <p className="bp-hook">{book.hook}</p>
       <Motif name={book.motif} className="bp-motif-cover" />
-      <div className="bp-foot"><span>{book.pages.length} pages</span><span>Swipe</span></div>
+      <div className="bp-foot"><span>{book.mins} min · {book.pages.length} pages</span><span>Swipe</span></div>
     </div>
   );
 }

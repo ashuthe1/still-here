@@ -4,7 +4,8 @@ hook: "A dad, a lunch box, and a promise he never made."
 kind: story
 motif: tiffin
 accent: "#e8a05a"
-order: 2
+order: 4
+moods: [home, love]
 ask: "roots/what-did-your-family-do-well-that-you"
 close: "Most of what we remember about being loved is small."
 ---

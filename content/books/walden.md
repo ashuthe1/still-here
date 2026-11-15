@@ -4,7 +4,8 @@ hook: "In 1845, Henry David Thoreau built a small cabin by a pond and lived ther
 kind: notes
 motif: plant
 accent: "#7fa07a"
-order: 37
+order: 49
+moods: [tired, stuck]
 credit: "Henry David Thoreau, Walden (1854). Quotations are in the public domain."
 ask: "want/walk-through-a-perfectly-ordinary-good-day-from"
 close: "Simplify one thing this week. Just one."

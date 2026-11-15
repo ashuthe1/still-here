@@ -4,7 +4,8 @@ hook: "None of them use the words."
 kind: list
 motif: envelope
 accent: "#e3807f"
-order: 3
+order: 2
+moods: [love, lonely]
 ask: "people/what-does-being-loved-well-feel-like-to"
 close: "Notice one of these this week. Then do one."
 ---

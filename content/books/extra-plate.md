@@ -5,6 +5,7 @@ kind: story
 motif: tiffin
 accent: "#e0a35a"
 order: 21
+moods: [lonely, home]
 ask: "people/who-made-this-year-warmer-tell-them-in"
 close: "Kindness is rarely paid back. It's mostly passed on."
 ---

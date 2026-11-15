@@ -5,7 +5,8 @@ kind: pair
 motif: bicycle
 accent: "#e0b45a"
 labels: [When I was eight, Now]
-order: 33
+order: 10
+moods: [smile, home]
 ask: "who/what-were-you-like-at-eight"
 close: "Your eight-year-old self is still in there somewhere. Say hello."
 ---

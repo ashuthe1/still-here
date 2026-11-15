@@ -5,7 +5,8 @@ kind: pair
 motif: phone
 accent: "#d48aa0"
 labels: [What they posted, What it was like]
-order: 48
+order: 23
+moods: [overthinking, lonely, smile]
 ask: "want/whose-life-gives-you-a-small-pang-when"
 close: "Everyone posts the top half. Go easy on yours."
 ---

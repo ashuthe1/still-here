@@ -4,7 +4,8 @@ hook: "From someone who stands in one place for a living."
 kind: creature
 motif: heron
 accent: "#6fa8a0"
-order: 12
+order: 44
+moods: [overthinking, stuck]
 ask: "want/what-are-you-waiting-for-and-who-is"
 close: "Waiting well is a skill. You have been practising for years."
 ---

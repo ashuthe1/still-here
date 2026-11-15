@@ -4,7 +4,8 @@ hook: "A first salary, a watch, and a father who said to return it."
 kind: story
 motif: watch
 accent: "#c9a66b"
-order: 43
+order: 8
+moods: [home, love, smile]
 ask: "roots/what-did-your-family-do-well-that-you"
 close: "The first thing you gave with your own money: someone has probably kept it."
 ---

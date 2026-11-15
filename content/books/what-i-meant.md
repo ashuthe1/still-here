@@ -5,7 +5,8 @@ kind: pair
 motif: bubbles
 accent: "#d48aa0"
 labels: [What I said, What I meant]
-order: 8
+order: 5
+moods: [love, overthinking]
 ask: "people/what-do-you-need-to-say-to-someone"
 close: "Most people are saying the second thing. Listen for it."
 ---

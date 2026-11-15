@@ -4,7 +4,8 @@ hook: "From someone who never forgets, and has chosen what to keep."
 kind: creature
 motif: elephant
 accent: "#b39ac4"
-order: 28
+order: 41
+moods: [love, home]
 ask: "roots/what-tradition-big-or-small-do-you-want"
 close: "Choose what you keep. Keep the kind things."
 ---

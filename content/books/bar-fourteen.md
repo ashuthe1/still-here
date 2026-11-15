@@ -4,7 +4,8 @@ hook: "A boy, an old piano, and the woman who lived downstairs."
 kind: story
 motif: piano
 accent: "#7fa7c9"
-order: 14
+order: 38
+moods: [stuck, smile]
 ask: "who/which-compliment-do-you-still-remember-years-later"
 close: "Somebody once told you to keep going. They meant it."
 ---

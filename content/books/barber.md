@@ -4,7 +4,8 @@ hook: "Thirty years in the same chair, with the man who has watched my whole hea
 kind: talk
 motif: scissors
 accent: "#c98a6a"
-order: 46
+order: 35
+moods: [smile, home]
 ask: "who/describe-yourself-to-a-stranger-without-mentioning-your"
 close: "Some people know you by the back of your head. Keep them."
 ---

@@ -4,7 +4,8 @@ hook: "From someone who is in no hurry at all."
 kind: creature
 motif: tortoise
 accent: "#8fb3a0"
-order: 5
+order: 3
+moods: [tired, stuck, smile]
 ask: "time/what-would-your-days-look-like-if-you"
 close: "Wherever you are today, you are further along than Tuesday."
 ---

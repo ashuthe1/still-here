@@ -11,7 +11,7 @@ export default function Footer() {
         </a>
       </div>
       <nav>
-        <Link href="/books/">Books</Link>
+        <Link href="/bytes/">Bytes</Link>
         <Link href="/ask/">Ask &amp; Find</Link>
         <Link href="/ask/start/">Start here</Link>
         <Link href="/me/">Yours</Link>

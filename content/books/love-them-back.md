@@ -4,7 +4,8 @@ hook: "They did a hundred small things for you. Here are a few to return."
 kind: list
 motif: glasses
 accent: "#e3807f"
-order: 34
+order: 19
+moods: [home, love]
 ask: "roots/which-of-your-parents-struggles-do-you-understand"
 close: "Pick one and do it before Sunday."
 ---

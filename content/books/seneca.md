@@ -4,7 +4,8 @@ hook: "Seneca wrote to a friend about time, nearly two thousand years ago. In pl
 kind: notes
 motif: clock
 accent: "#b89b6a"
-order: 35
+order: 47
+moods: [stuck, overthinking]
 credit: "After Seneca, On the Shortness of Life (around AD 49), paraphrased"
 ask: "time/what-did-you-do-last-week-that-was"
 close: "Give one hour this week to something that's really yours."

@@ -4,7 +4,8 @@ hook: "Quiet signs that are easy to miss when you're in the middle of it."
 kind: list
 motif: plant
 accent: "#7fb08a"
-order: 30
+order: 7
+moods: [tired, stuck, overthinking]
 ask: "lighter/what-have-you-survived-that-you-have-never"
 close: "Count the quiet signs. They count."
 ---

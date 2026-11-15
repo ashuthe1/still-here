@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { questions, getCategory, getQuestion, questionsFor, questionHref, categoryHref, getPieceById, headline, headlineAuthor, pieceHref } from "@/lib/content";
+import { questions, getCategory, getQuestion, questionsFor, questionHref, categoryHref, getPieceById, headline, headlineAuthor, pieceHref, books, bookHref } from "@/lib/content";
 import QuestionEditor from "@/components/QuestionEditor";
 import FirstVisitNote from "@/components/FirstVisitNote";
 import AnsweredNote from "@/components/AnsweredNote";
@@ -28,6 +28,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ categ
   const prev = i > 0 ? list[i - 1] : undefined;
   const next = i < list.length - 1 ? list[i + 1] : undefined;
   const piece = q.read ? getPieceById(q.read) : undefined;
+  const byte = books.find((b) => b.ask === q.id);
   return (
     <main className="wrap piece" style={{ ["--accent" as string]: c.accent }}>
       <div className="piece-top">
@@ -48,6 +49,15 @@ export default async function QuestionPage({ params }: { params: Promise<{ categ
               <Link href={pieceHref(piece)} className="read-with-card">
                 <p className="serif">{headline(piece).split(/\n\s*\n/)[0]}</p>
                 <span className="muted">{headlineAuthor(piece) === "Still Here" ? piece.title : headlineAuthor(piece)}</span>
+              </Link>
+            </aside>
+          )}
+          {byte && (
+            <aside className="read-with">
+              <span className="eyebrow">A byte that leads here</span>
+              <Link href={bookHref(byte)} className="read-with-card" style={{ ["--accent" as string]: byte.accent }}>
+                <p className="serif">{byte.title}</p>
+                <span className="muted">{byte.hook}</span>
               </Link>
             </aside>
           )}

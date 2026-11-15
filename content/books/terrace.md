@@ -4,7 +4,8 @@ hook: "The night the results came out, and what my father said instead of a lect
 kind: talk
 motif: chai
 accent: "#c98a5a"
-order: 27
+order: 14
+moods: [stuck, home, overthinking]
 ask: "lighter/what-is-the-worst-that-would-actually-happen"
 close: "Some nights you don't need advice. You need someone to bring the second cup."
 ---

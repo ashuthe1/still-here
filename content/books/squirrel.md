@@ -4,7 +4,8 @@ hook: "From someone who has buried four hundred nuts and remembers about half of
 kind: creature
 motif: squirrel
 accent: "#d08a5a"
-order: 42
+order: 43
+moods: [overthinking, stuck]
 ask: "work/what-does-enough-money-look-like-as-a"
 close: "Prepare a little. Then go and enjoy the sun."
 ---

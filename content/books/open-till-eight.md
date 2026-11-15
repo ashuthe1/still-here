@@ -4,7 +4,8 @@ hook: "A corner shop, a night shift, and a sign I never read."
 kind: story
 motif: shop
 accent: "#c9a66b"
-order: 10
+order: 32
+moods: [lonely, love]
 ask: "people/what-is-one-small-thing-someone-did-for"
 close: "Somebody has probably been keeping a light on for you."
 ---

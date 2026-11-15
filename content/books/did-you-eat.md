@@ -4,7 +4,8 @@ hook: "A message meant for someone else."
 kind: story
 motif: phone
 accent: "#d98c6a"
-order: 7
+order: 15
+moods: [lonely, smile]
 ask: "people/who-have-you-drifted-from-that-you-miss"
 close: "Some people check on you simply because you are there."
 ---

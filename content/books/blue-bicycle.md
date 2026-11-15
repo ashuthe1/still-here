@@ -4,7 +4,8 @@ hook: "A tenth birthday, a tight year, and three coats of paint."
 kind: story
 motif: bicycle
 accent: "#6f9fd0"
-order: 19
+order: 18
+moods: [home, love]
 ask: "roots/which-of-your-parents-struggles-do-you-understand"
 close: "Some gifts only make sense twenty years later."
 ---

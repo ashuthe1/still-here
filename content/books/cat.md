@@ -4,7 +4,8 @@ hook: "From someone who has never once felt guilty about a nap."
 kind: creature
 motif: cat
 accent: "#c98fb5"
-order: 15
+order: 9
+moods: [tired, smile]
 ask: "mind/what-calms-you-reliably-make-the-list"
 close: "Nap first. The list will still be there."
 ---

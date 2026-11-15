@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     at("/", 1, "daily"),
     at("/ask/", 0.9, "daily"),
-    at("/books/", 0.9, "weekly"),
+    at("/bytes/", 0.9, "weekly"),
     at("/ask/start/", 0.8),
     at("/about/", 0.5),
     at("/privacy/", 0.3),

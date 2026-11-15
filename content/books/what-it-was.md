@@ -5,7 +5,8 @@ kind: pair
 motif: bench
 accent: "#a995d6"
 labels: [What it looked like, What it was]
-order: 13
+order: 31
+moods: [overthinking, lonely]
 ask: "people/who-gets-more-of-your-patience-than-you"
 close: "You only ever see the top half."
 ---

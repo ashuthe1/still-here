@@ -4,7 +4,8 @@ hook: "From someone who has jumped off a great many lily pads, not all of them o
 kind: creature
 motif: frog
 accent: "#6fae8a"
-order: 24
+order: 28
+moods: [stuck, smile]
 ask: "ahead/what-is-one-thing-you-could-start-this"
 close: "You've started again before. You can do it once more."
 ---

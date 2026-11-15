@@ -4,7 +4,8 @@ hook: "Mostly good news. Some of it you'll learn the long way anyway."
 kind: list
 motif: suitcase
 accent: "#b5895a"
-order: 9
+order: 25
+moods: [stuck, home, overthinking]
 ask: "time/what-matters-to-you-more-than-it-did"
 close: "Send this to someone halfway through theirs."
 ---

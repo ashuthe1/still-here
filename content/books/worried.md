@@ -5,7 +5,8 @@ kind: pair
 motif: clock
 accent: "#8aa9c4"
 labels: [What I worried about, What actually happened]
-order: 31
+order: 17
+moods: [overthinking, smile]
 ask: "mind/what-do-you-do-when-you-are-avoiding"
 close: "Most of it never happens. The rest, you handle."
 ---

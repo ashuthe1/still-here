@@ -24,7 +24,7 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
     <main className="wrap book" style={{ ["--accent" as string]: b.accent }}>
       <MotifDefs />
       <div className="piece-top">
-        <Link href="/books/" className="crumb"><span className="dot" aria-hidden />Books</Link>
+        <Link href="/bytes/" className="crumb"><span className="dot" aria-hidden />Bytes</Link>
         <span className="faint" style={{ fontSize: "0.8rem" }}>{kindLabel(b)}</span>
       </div>
       <h1 className="sr-only">{b.title}</h1>

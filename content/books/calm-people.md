@@ -4,7 +4,8 @@ hook: "Calm turns out to be less of a personality and more of a routine."
 kind: list
 motif: mug
 accent: "#7fb0a8"
-order: 47
+order: 34
+moods: [overthinking, tired]
 ask: "mind/what-is-one-habit-that-gives-you-more"
 close: "Pick one habit. Try it for a week."
 ---

@@ -4,7 +4,8 @@ hook: "From someone who only goes out when it's damp, and is fine with that."
 kind: creature
 motif: snail
 accent: "#9bb36b"
-order: 18
+order: 33
+moods: [tired, lonely, stuck]
 ask: "who/what-part-of-you-did-you-put-away"
 close: "You can come out slowly. Nobody is timing you."
 ---

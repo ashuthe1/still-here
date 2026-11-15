@@ -4,7 +4,8 @@ hook: "Four hours at an airport gate, half a sandwich, and a stranger who had do
 kind: talk
 motif: plane
 accent: "#7fa7c9"
-order: 44
+order: 20
+moods: [stuck, smile]
 ask: "work/what-would-you-tell-someone-starting-your-career"
 close: "The best conversations often happen while you're waiting for something else."
 ---

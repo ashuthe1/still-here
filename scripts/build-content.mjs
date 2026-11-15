@@ -111,11 +111,15 @@ if (existsSync(BOOKS)) {
     const slug = basename(f, ".md");
     if (bm.ask && !qids.has(bm.ask)) console.warn(`warn: book ${slug} links to missing question ${bm.ask}`);
     const pages = body.split(/\n---\n/).map((s) => s.trim()).filter(Boolean);
+    // about 200 words a minute, plus a moment per page for the turn
+    const words = pages.join(" ").replace(/^@\S+$/gm, "").split(/\s+/).filter(Boolean).length;
+    const mins = Math.max(1, Math.round(words / 200 + pages.length * 0.08));
     books.push({
       slug, title: bm.title || slug, hook: bm.hook || "", kind: bm.kind || "story",
       motif: bm.motif || "leaf", accent: bm.accent || "#c9a66b", order: bm.order ?? 99,
       labels: Array.isArray(bm.labels) ? bm.labels : [], credit: bm.credit || "",
       ask: qids.has(bm.ask) ? bm.ask : "", close: bm.close || "", pages,
+      moods: Array.isArray(bm.moods) ? bm.moods : [], mins,
     });
   }
   books.sort((a, b) => a.order - b.order);

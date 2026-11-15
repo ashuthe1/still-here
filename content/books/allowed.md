@@ -4,7 +4,8 @@ hook: "A short list of permissions nobody thought to give you."
 kind: list
 motif: door
 accent: "#9bb36b"
-order: 11
+order: 37
+moods: [tired, overthinking]
 ask: "lighter/what-would-you-let-yourself-off-the-hook"
 close: "Pick one and use it this week."
 ---
