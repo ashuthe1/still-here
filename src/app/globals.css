@@ -978,3 +978,4 @@ mark { background: color-mix(in oklab, var(--accent) 28%, transparent); color: i
 .byte-row { padding-top: clamp(18px, 3vh, 32px); padding-bottom: 4px; }
 .byte-row h2 a:hover { color: var(--accent); }
 .read-home .hero-tight { padding-top: clamp(28px, 6vh, 64px); }
+.share-hint { margin: -4px 0 12px; }

@@ -6,14 +6,14 @@ import type { Question } from "@/lib/content";
 import { questions, dailyPool, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, restoreEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode, type CardSize } from "@/lib/card";
-import ShapeToggle from "./ShapeToggle";
-import { Share, Printer, Seal, LinkIcon } from "./Icons";
+import ShareSheet from "./ShareSheet";
+import { Share, Printer, Seal } from "./Icons";
 import DatePicker from "./DatePicker";
 import EnvelopeArt from "./EnvelopeArt";
 import PaperPlane from "./PaperPlane";
 import { isStandalone, isPhone } from "@/lib/site";
 import { isHiddenQuestion, hideQuestion, unhideQuestion, hiddenQuestions, randomVisible } from "@/lib/hidden";
-import { shareBlob, haptic, shareLink } from "@/lib/native";
+import { shareBlob, haptic } from "@/lib/native";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -24,7 +24,6 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [menu, setMenu] = useState<null | "share" | "print" | "seal">(null);
-  const [shape, setShape] = useState<CardSize>("feed");
   const [sealShare, setSealShare] = useState<string | null>(null);
   const [customDate, setCustomDate] = useState("");
   const [pickDate, setPickDate] = useState(false);
@@ -153,25 +152,6 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   function latestAnswer(): string { return text.trim() || entries.find((e) => !isSealed(e))?.text || ""; }
 
-  /** Phones get the system share sheet with just the file. Laptops download one PNG. */
-  async function share(withAnswer: boolean) {
-    setMenu(null);
-    try {
-      const blob = await renderQuestionCard(question, categoryTitle, accent, withAnswer ? "answer" : "question", latestAnswer(), false, shape);
-      const file = new File([blob], `still-here-${question.slug}${withAnswer ? "-answer" : ""}${shape === "story" ? "-story" : ""}.png`, { type: "image/png" });
-      if (await shareBlob(blob, file.name)) return;
-      const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
-      if (phone && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-      } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        flash("Image saved to your downloads");
-      }
-    } catch { flash("Could not make image"); }
-  }
-
   /** In the installed app there is no print dialog, so hand a paper sheet to the share sheet instead. */
   async function printAsSheet(withAnswer: boolean) {
     try {
@@ -187,13 +167,6 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         flash("Sheet saved as an image");
       }
     } catch { flash("Could not make the sheet"); }
-  }
-
-  async function sendLink() {
-    setMenu(null);
-    const r = await shareLink();
-    if (r === "copied") flash("Link copied, ready to paste");
-    else if (r === "failed") flash("Could not share the link");
   }
 
   function print(withAnswer: boolean) {
@@ -306,8 +279,8 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
                 </div>
                 {sealShare === e.t && (
                   <div className="row-actions" style={{ marginTop: 10 }}>
-                    <button className="pill" onClick={() => shareSealed(e, "feed")}>For the feed</button>
-                    <button className="pill" onClick={() => shareSealed(e, "story")}>For a story</button>
+                    <button className="pill" onClick={() => shareSealed(e, "feed")}>As a post</button>
+                    <button className="pill" onClick={() => shareSealed(e, "story")}>As a story</button>
                   </div>
                 )}
               </div>
@@ -332,21 +305,24 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
         <button className={`pill ${menu === "share" ? "on" : ""}`} onClick={() => setMenu(menu === "share" ? null : "share")}><Share />Share</button>
         <button className={`pill ${menu === "print" ? "on" : ""}`} onClick={() => setMenu(menu === "print" ? null : "print")}><Printer />Print</button>
       </div>
-      {menu && (
-        <div className="chooser" role="group" aria-label={menu === "share" ? "Share as an image" : "Print"}>
-          <span className="eyebrow">{menu === "share" ? "Share as an image" : "Print a sheet"}</span>
-          {menu === "share" && <ShapeToggle value={shape} onChange={setShape} />}
+      {menu === "share" && (
+        <ShareSheet
+          flash={flash}
+          onClose={() => setMenu(null)}
+          linkNote="Opens this question, with a preview card. Your answer stays here."
+          options={[
+            { label: "Just the question", make: async (shape) => ({ blobs: [await renderQuestionCard(question, categoryTitle, accent, "question", "", false, shape)], names: [`still-here-${question.slug}${shape === "story" ? "-story" : ""}.png`] }) },
+            { label: "With my answer", disabled: !latestAnswer(), make: async (shape) => ({ blobs: [await renderQuestionCard(question, categoryTitle, accent, "answer", latestAnswer(), false, shape)], names: [`still-here-${question.slug}-answer${shape === "story" ? "-story" : ""}.png`] }) },
+          ]}
+        />
+      )}
+      {menu === "print" && (
+        <div className="chooser" role="group" aria-label="Print">
+          <span className="eyebrow">Print a sheet</span>
           <div className="row-actions">
-            <button className="pill" onClick={() => (menu === "share" ? share(false) : print(false))}>Just the question</button>
-            <button className="pill" onClick={() => (menu === "share" ? share(true) : print(true))} disabled={!latestAnswer()}>With my answer</button>
+            <button className="pill" onClick={() => print(false)}>Just the question</button>
+            <button className="pill" onClick={() => print(true)} disabled={!latestAnswer()}>With my answer</button>
           </div>
-          {menu === "share" && (
-            <div className="chooser-split">
-              <span className="eyebrow">Or send the link</span>
-              <p className="muted small">Opens this question, with a preview card. Your answer stays here.</p>
-              <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
-            </div>
-          )}
         </div>
       )}
       {mounted && createPortal(

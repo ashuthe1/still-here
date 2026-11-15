@@ -4,10 +4,10 @@ import Link from "next/link";
 import type { Book } from "@/lib/content";
 import { bookHref } from "@/lib/content";
 import { Cover, Page, EndPage, pageCount } from "./BookPage";
-import { ArrowLeft, ArrowRight, Share, LinkIcon } from "./Icons";
+import { ArrowLeft, ArrowRight, Share } from "./Icons";
 import { renderBookPage } from "@/lib/bookcard";
-import { shareBlob, shareBlobs, shareLink, haptic } from "@/lib/native";
-import { isPhone } from "@/lib/site";
+import { haptic } from "@/lib/native";
+import ShareSheet from "./ShareSheet";
 import { saveProgress } from "@/lib/bytes";
 
 export default function BookReader({ book, next }: { book: Book; next?: Book }) {
@@ -15,7 +15,6 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
   const ref = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState(0);
   const [menu, setMenu] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(""), 1900); };
 
@@ -71,44 +70,7 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
   useEffect(() => { if (at > 0) haptic("light"); }, [at]);
   useEffect(() => { if (at > 0) saveProgress(book.slug, at, total); }, [at, book.slug, total]);
 
-  const fileName = (i: number) => `still-here-${book.slug}-${String(i + 1).padStart(2, "0")}.png`;
-
-  async function sharePage() {
-    setMenu(false); setBusy(true);
-    try {
-      const blob = await renderBookPage(book, at, next);
-      const name = fileName(at);
-      if (await shareBlob(blob, name)) return;
-      const file = new File([blob], name, { type: "image/png" });
-      if (isPhone() && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
-      else { download(blob, name); flash("Image saved to your downloads"); }
-    } catch (e) { if (!(e instanceof Error && /abort|cancel/i.test(e.name + e.message))) flash("Could not make the image"); }
-    finally { setBusy(false); }
-  }
-
-  async function shareAll() {
-    setMenu(false); setBusy(true);
-    try {
-      const blobs: Blob[] = [];
-      for (let i = 0; i < total; i++) blobs.push(await renderBookPage(book, i, next));
-      const names = blobs.map((_, i) => fileName(i));
-      if (await shareBlobs(blobs, names)) return;
-      const files = blobs.map((b, i) => new File([b], names[i], { type: "image/png" }));
-      if (isPhone() && navigator.canShare?.({ files })) await navigator.share({ files });
-      else {
-        for (let i = 0; i < blobs.length; i++) { download(blobs[i], names[i]); await new Promise((r) => setTimeout(r, 250)); }
-        flash(`${blobs.length} images saved to your downloads`);
-      }
-    } catch (e) { if (!(e instanceof Error && /abort|cancel/i.test(e.name + e.message))) flash("Could not make the images"); }
-    finally { setBusy(false); }
-  }
-
-  async function sendLink() {
-    setMenu(false);
-    const r = await shareLink();
-    if (r === "copied") flash("Link copied, ready to paste");
-    else if (r === "failed") flash("Could not share the link");
-  }
+  const fileName = (i: number, shape: string) => `still-here-${book.slug}-${String(i + 1).padStart(2, "0")}${shape === "story" ? "-story" : ""}.png`;
 
   return (
     <div className="reader" style={{ ["--accent" as string]: book.accent }}>
@@ -131,33 +93,32 @@ export default function BookReader({ book, next }: { book: Book; next?: Book }) 
       </div>
 
       <div className="actions reader-actions">
-        <button className={`pill ${menu ? "on" : ""}`} onClick={() => setMenu(!menu)} disabled={busy}><Share />{busy ? "Making…" : "Share"}</button>
+        <button className={`pill ${menu ? "on" : ""}`} onClick={() => setMenu(!menu)}><Share />Share</button>
         {at === total - 1 && next
           ? <Link href={bookHref(next)} className="pill">Next byte <ArrowRight /></Link>
           : <button className="pill subtle" onClick={() => go(at === total - 1 ? 0 : at + 1)}>{at === total - 1 ? "Start again" : at === 0 ? "Start reading" : "Turn the page"}</button>}
       </div>
 
       {menu && (
-        <div className="chooser" role="group" aria-label="Share">
-          <span className="eyebrow">Share as images</span>
-          <div className="row-actions">
-            <button className="btn" onClick={sharePage}>This page</button>
-            <button className="pill" onClick={shareAll}>All {total} pages</button>
-          </div>
-          <div className="chooser-split">
-            <span className="eyebrow">Or send the link</span>
-            <p className="muted small">Opens this byte, with a preview card.</p>
-            <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
-          </div>
-        </div>
+        <ShareSheet
+          flash={flash}
+          onClose={() => setMenu(false)}
+          linkNote="Opens this byte, with a preview card."
+          options={[
+            { label: "This page", make: async (shape) => ({ blobs: [await renderBookPage(book, at, next, shape)], names: [fileName(at, shape)] }) },
+            {
+              label: `All ${total} pages`,
+              make: async (shape) => {
+                const blobs: Blob[] = [];
+                for (let i = 0; i < total; i++) blobs.push(await renderBookPage(book, i, next, shape));
+                return { blobs, names: blobs.map((_, i) => fileName(i, shape)) };
+              },
+            },
+          ]}
+        />
       )}
       <div className={`toast ${toast ? "show" : ""}`} role="status">{toast}</div>
     </div>
   );
 }
 
-function download(blob: Blob, name: string) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = name; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-}

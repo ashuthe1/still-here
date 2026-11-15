@@ -5,18 +5,17 @@ import { useRouter } from "next/navigation";
 import type { Piece } from "@/lib/content";
 import { headline, headlineAuthor, paragraphs } from "@/lib/content";
 import { isSaved, toggleSaved } from "@/lib/saved";
-import { Bookmark, Share, Printer, LinkIcon } from "./Icons";
-import { renderCard, type CardSize } from "@/lib/card";
+import { Bookmark, Share, Printer } from "./Icons";
+import { renderCard } from "@/lib/card";
 import { isStandalone, isPhone } from "@/lib/site";
-import ShapeToggle from "./ShapeToggle";
+import ShareSheet from "./ShareSheet";
 import { isHiddenPiece, hidePiece, unhidePiece } from "@/lib/hidden";
-import { shareBlob, haptic, shareLink } from "@/lib/native";
+import { shareBlob, haptic } from "@/lib/native";
 
 export default function PieceActions({ piece, accent, themeTitle, prevHref, nextHref }: { piece: Piece; accent: string; themeTitle: string; prevHref?: string; nextHref?: string }) {
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState("");
   const [menu, setMenu] = useState<null | "share">(null);
-  const [shape, setShape] = useState<CardSize>("feed");
   const [mounted, setMounted] = useState(false);
   const [hidden, setHidden] = useState(false);
   const router = useRouter();
@@ -50,30 +49,6 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
     flash(on ? "Saved" : "Removed");
   }
 
-  async function share() {
-    setMenu(null);
-    try {
-      const blob = await renderCard(piece, accent, shape);
-      const file = new File([blob], `still-here-${piece.slug}${shape === "story" ? "-story" : ""}.png`, { type: "image/png" });
-      if (await shareBlob(blob, file.name)) return;
-      if (isPhone() && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-      } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        flash("Image saved to your downloads");
-      }
-    } catch { flash("Could not make image"); }
-  }
-
-  async function sendLink() {
-    setMenu(null);
-    const r = await shareLink();
-    if (r === "copied") flash("Link copied, ready to paste");
-    else if (r === "failed") flash("Could not share the link");
-  }
-
   async function print() {
     if (isStandalone() && isPhone()) {
       // no print dialog in an installed app: hand a paper sheet to the share sheet instead
@@ -105,18 +80,15 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
       </div>
       {hidden && <p className="faint small" style={{ marginTop: 10 }}>Hidden pieces stay out of the daily pick and the random button.</p>}
       {menu === "share" && (
-        <div className="chooser" role="group" aria-label="Share as an image">
-          <span className="eyebrow">Share as an image</span>
-          <ShapeToggle value={shape} onChange={setShape} />
-          <div className="row-actions">
-            <button className="btn" onClick={share}>Make the image</button>
-          </div>
-          <div className="chooser-split">
-            <span className="eyebrow">Or send the link</span>
-            <p className="muted small">Opens this piece, with a preview card.</p>
-            <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
-          </div>
-        </div>
+        <ShareSheet
+          flash={flash}
+          onClose={() => setMenu(null)}
+          linkNote="Opens this piece, with a preview card."
+          options={[{
+            label: "This piece",
+            make: async (shape) => ({ blobs: [await renderCard(piece, accent, shape)], names: [`still-here-${piece.slug}${shape === "story" ? "-story" : ""}.png`] }),
+          }]}
+        />
       )}
       {mounted && createPortal(
         <div className="print-root" aria-hidden>

@@ -45,7 +45,7 @@ function wrapRuns(ctx: CanvasRenderingContext2D, runs: Run[], maxW: number): Seg
   return lines;
 }
 
-export async function renderBookPage(book: Book, index: number, next?: Book): Promise<Blob> {
+export async function renderBookPage(book: Book, index: number, next?: Book, shape: "feed" | "story" = "feed"): Promise<Blob> {
   const serif = font("--font-serif", "Georgia"), sans = font("--font-sans", "Helvetica");
   await Promise.all([
     document.fonts.load(`300 60px ${serif}`), document.fonts.load(`400 60px ${serif}`),
@@ -206,5 +206,30 @@ export async function renderBookPage(book: Book, index: number, next?: Book): Pr
     }
     foot(book.title, `${index + 1} / ${total}`);
   }
-  return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
+  if (shape === "story") return toBlob(toStory(c, accent));
+  return toBlob(c);
+}
+
+const toBlob = (c: HTMLCanvasElement) => new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("no blob"))), "image/png"));
+
+/**
+ * A 9:16 story frame: the same paper page, set inside a taller sheet with room above and below
+ * for Instagram's own name bar and reply box.
+ */
+function toStory(page: HTMLCanvasElement, accent: string): HTMLCanvasElement {
+  const SW = 1080, SH = 1920, top = 250;
+  const c = document.createElement("canvas"); c.width = SW; c.height = SH;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "#efe9de"; ctx.fillRect(0, 0, SW, SH);
+  const g = ctx.createRadialGradient(SW * 0.85, SH * 0.08, 0, SW * 0.85, SH * 0.08, SW);
+  g.addColorStop(0, accent + "40"); g.addColorStop(1, "transparent");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, SW, SH);
+  const w = 960, h = w * 1350 / 1080, x = (SW - w) / 2;
+  ctx.save();
+  ctx.shadowColor = "rgba(60,40,10,0.18)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14;
+  ctx.beginPath(); ctx.roundRect(x, top, w, h, 28); ctx.fillStyle = PAPER; ctx.fill();
+  ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.roundRect(x, top, w, h, 28); ctx.clip();
+  ctx.drawImage(page, x, top, w, h); ctx.restore();
+  return c;
 }
