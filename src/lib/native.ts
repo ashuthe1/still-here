@@ -14,13 +14,13 @@ async function blobToBase64(blob: Blob): Promise<string> {
 }
 
 /** Shares an image through the native sheet. Returns false in a browser so the caller can fall back. */
-export async function shareBlob(blob: Blob, name: string, text?: string): Promise<boolean> {
+export async function shareBlob(blob: Blob, name: string): Promise<boolean> {
   if (!isNative()) return false;
   const { Filesystem, Directory } = await import("@capacitor/filesystem");
   const { Share } = await import("@capacitor/share");
   const data = await blobToBase64(blob);
   const written = await Filesystem.writeFile({ path: name, data, directory: Directory.Cache });
-  await Share.share({ files: [written.uri], text, dialogTitle: "Still Here" });
+  await Share.share({ files: [written.uri], dialogTitle: "Still Here" });
   return true;
 }
 
@@ -75,27 +75,27 @@ export function publicUrl(): string {
 }
 
 /**
- * Shares a link: native sheet in the app, the system sheet on phones, the clipboard on laptops.
+ * Shares only the page's public address, no text: native sheet in the app, the system sheet on phones, the clipboard on laptops.
  * Returns what happened so the caller can say so.
  */
-export async function shareLink(text: string): Promise<"shared" | "copied" | "failed"> {
+export async function shareLink(): Promise<"shared" | "copied" | "failed"> {
   const url = publicUrl();
   try {
     if (isNative()) {
       const { Share } = await import("@capacitor/share");
-      await Share.share({ title: "Still Here", text, url, dialogTitle: "Send the link" });
+      await Share.share({ url, dialogTitle: "Send the link" });
       return "shared";
     }
     const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
     if (phone && navigator.share) {
-      await navigator.share({ title: "Still Here", text, url });
+      await navigator.share({ url });
       return "shared";
     }
-    await navigator.clipboard.writeText(`${text}\n${url}`);
+    await navigator.clipboard.writeText(url);
     return "copied";
   } catch (e) {
     // closing the share sheet is not a failure
     if (e instanceof Error && /abort|cancel/i.test(e.name + e.message)) return "shared";
-    try { await navigator.clipboard.writeText(`${text}\n${url}`); return "copied"; } catch { return "failed"; }
+    try { await navigator.clipboard.writeText(url); return "copied"; } catch { return "failed"; }
   }
 }

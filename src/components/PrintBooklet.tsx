@@ -6,6 +6,7 @@ import { categoryHref } from "@/lib/content";
 import { getAll, formatDate, type Entry } from "@/lib/answers";
 import { Printer, ArrowLeft } from "./Icons";
 import { isStandalone, isPhone } from "@/lib/site";
+import { publicUrl } from "@/lib/native";
 
 export default function PrintBooklet({ category, questions }: { category: Category; questions: Question[] }) {
   const [withAnswers, setWithAnswers] = useState(false);
@@ -14,7 +15,7 @@ export default function PrintBooklet({ category, questions }: { category: Catego
   const [copied, setCopied] = useState(false);
   useEffect(() => { setAnswers(getAll()); setInApp(isStandalone() && isPhone()); }, []);
   async function copyLink() {
-    try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
+    try { await navigator.clipboard.writeText(publicUrl()); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
   }
   const answeredHere = questions.filter((q) => answers[q.id]?.length).length;
   return (

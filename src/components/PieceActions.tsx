@@ -69,10 +69,7 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
 
   async function sendLink() {
     setMenu(null);
-    const head = headline(piece).split(/\n\s*\n/)[0];
-    const who = headlineAuthor(piece);
-    const text = who === "Still Here" ? `${piece.title}: ${head}` : `\u201C${head}\u201D \u2014 ${who}`;
-    const r = await shareLink(text.length > 280 ? text.slice(0, 277).replace(/\s+\S*$/, "") + "\u2026" : text);
+    const r = await shareLink();
     if (r === "copied") flash("Link copied, ready to paste");
     else if (r === "failed") flash("Could not share the link");
   }

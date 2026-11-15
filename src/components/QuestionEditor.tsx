@@ -186,7 +186,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
 
   async function sendLink() {
     setMenu(null);
-    const r = await shareLink(question.text);
+    const r = await shareLink();
     if (r === "copied") flash("Link copied, ready to paste");
     else if (r === "failed") flash("Could not share the link");
   }
