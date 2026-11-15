@@ -22,7 +22,7 @@ import { SITE_URL } from "@/lib/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "Still Here", template: "%s · Still Here" },
-  description: "One gentle question a day. Write privately, know yourself better. Plus a shelf of lines worth keeping.",
+  description: "One thoughtful question a day. Write privately, see what matters. Plus a shelf of lines worth keeping.",
   openGraph: { type: "website", siteName: "Still Here", locale: "en" },
   twitter: { card: "summary_large_image" },
   alternates: { canonical: "/" },
@@ -48,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script src="https://cloud.umami.is/script.js" data-website-id="20d61075-c837-44d1-9748-7723d628ff97" strategy="afterInteractive" />
       </head>
       <body>
+        <div className="sb-shield" aria-hidden />
         <div className="wrap">
           <Header />
         </div>

@@ -26,7 +26,7 @@ export default function StartBanner() {
         <div className="eyebrow"><b>{done === 0 ? "New here?" : finished ? "Start Here, done" : "In progress"}</b></div>
         <h2>{done === 0 ? `Start with ${total} questions` : finished ? "You have answered all of them" : `Continue Start Here, ${done} of ${total}`}</h2>
         <p>{done === 0
-          ? "A gentle first pass across every part of your life. Twenty minutes, or a week of evenings."
+          ? "A first pass across every part of your life. Twenty minutes, or a week of evenings."
           : finished ? "Come back to any of them whenever you like, and see what has moved." : "Pick up where you left off. No hurry."}</p>
         {done > 0 && !finished && <div className="start-progress" aria-hidden><span style={{ width: `${(done / total) * 100}%` }} /></div>}
       </div>

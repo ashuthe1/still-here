@@ -1,5 +1,6 @@
 // The thin bridge to the native shell. Every function is a no-op in a plain browser.
 import { Capacitor } from "@capacitor/core";
+import { SITE_URL } from "./site";
 
 export function isNative(): boolean {
   try { return Capacitor.isNativePlatform(); } catch { return false; }
@@ -64,4 +65,37 @@ export async function initNative() {
   } catch {}
   await syncStatusBar();
   try { const { SplashScreen } = await import("@capacitor/splash-screen"); await SplashScreen.hide(); } catch {}
+}
+
+/** The public address of the current page, even inside the app, so the recipient gets the preview card. */
+export function publicUrl(): string {
+  if (typeof window === "undefined") return SITE_URL;
+  const path = window.location.pathname.endsWith("/") ? window.location.pathname : window.location.pathname + "/";
+  return SITE_URL + path;
+}
+
+/**
+ * Shares a link: native sheet in the app, the system sheet on phones, the clipboard on laptops.
+ * Returns what happened so the caller can say so.
+ */
+export async function shareLink(text: string): Promise<"shared" | "copied" | "failed"> {
+  const url = publicUrl();
+  try {
+    if (isNative()) {
+      const { Share } = await import("@capacitor/share");
+      await Share.share({ title: "Still Here", text, url, dialogTitle: "Send the link" });
+      return "shared";
+    }
+    const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+    if (phone && navigator.share) {
+      await navigator.share({ title: "Still Here", text, url });
+      return "shared";
+    }
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    return "copied";
+  } catch (e) {
+    // closing the share sheet is not a failure
+    if (e instanceof Error && /abort|cancel/i.test(e.name + e.message)) return "shared";
+    try { await navigator.clipboard.writeText(`${text}\n${url}`); return "copied"; } catch { return "failed"; }
+  }
 }

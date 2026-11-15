@@ -17,7 +17,7 @@ export default function FirstVisitNote() {
   if (!show) return null;
   return (
     <p className="first-note">
-      <span className="dot" aria-hidden /> New here? Still Here asks one gentle question a day. Whatever you write stays on this phone.
+      <span className="dot" aria-hidden /> New here? Still Here asks one thoughtful question a day. Whatever you write stays on this phone.
       {" "}<Link href="/">See how it works</Link>
     </p>
   );

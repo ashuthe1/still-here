@@ -12,7 +12,7 @@ export default function About() {
       <div className="eyebrow"><b>About</b></div>
       <h1>A quiet place to meet yourself.</h1>
       <p>
-        <strong>Still Here</strong> asks you one gentle question at a time and gives you somewhere private to answer. It is not a test and there is nothing to get right. The point is to notice what you actually think, and to have it in your own words when you come back later.
+        <strong>Still Here</strong> asks you one thoughtful question at a time and gives you somewhere private to answer. It is not a test and there is nothing to get right. The point is to notice what you actually think, and to have it in your own words when you come back later.
       </p>
 
       <h2>Ask &amp; Find</h2>

@@ -9,7 +9,7 @@ import StartBanner from "@/components/StartBanner";
 
 export default function Home() {
   return (
-    <main className="wrap">
+    <main className="wrap" data-home="">
       <Welcome />
       <section className="hero">
         <ReadyLetters />

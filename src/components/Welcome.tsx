@@ -33,7 +33,7 @@ export default function Welcome() {
         <div className="wordmark" style={{ marginBottom: 28 }}><span className="dot" aria-hidden />Still Here</div>
         <h1 id="welcome-title">A quiet place to meet yourself.</h1>
         <ul className="welcome-lines">
-          <li style={{ animationDelay: "0.25s" }}><span className="n">1</span>One gentle question a day. No right answers.</li>
+          <li style={{ animationDelay: "0.25s" }}><span className="n">1</span>One thoughtful question a day. No right answers.</li>
           <li style={{ animationDelay: "0.45s" }}><span className="n">2</span>Everything you write stays on this phone. No account, nothing sent anywhere.</li>
           <li style={{ animationDelay: "0.65s" }}><span className="n">3</span>Answer the same question a year from now, and see what moved.</li>
         </ul>

@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Piece } from "@/lib/content";
 import { headline, headlineAuthor, paragraphs } from "@/lib/content";
 import { isSaved, toggleSaved } from "@/lib/saved";
-import { Bookmark, Share, Printer } from "./Icons";
+import { Bookmark, Share, Printer, LinkIcon } from "./Icons";
 import { renderCard, type CardSize } from "@/lib/card";
 import { isStandalone, isPhone } from "@/lib/site";
 import ShapeToggle from "./ShapeToggle";
 import { isHiddenPiece, hidePiece, unhidePiece } from "@/lib/hidden";
-import { shareBlob, haptic } from "@/lib/native";
+import { shareBlob, haptic, shareLink } from "@/lib/native";
 
 export default function PieceActions({ piece, accent, themeTitle, prevHref, nextHref }: { piece: Piece; accent: string; themeTitle: string; prevHref?: string; nextHref?: string }) {
   const [saved, setSaved] = useState(false);
@@ -67,6 +67,16 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
     } catch { flash("Could not make image"); }
   }
 
+  async function sendLink() {
+    setMenu(null);
+    const head = headline(piece).split(/\n\s*\n/)[0];
+    const who = headlineAuthor(piece);
+    const text = who === "Still Here" ? `${piece.title}: ${head}` : `\u201C${head}\u201D \u2014 ${who}`;
+    const r = await shareLink(text.length > 280 ? text.slice(0, 277).replace(/\s+\S*$/, "") + "\u2026" : text);
+    if (r === "copied") flash("Link copied, ready to paste");
+    else if (r === "failed") flash("Could not share the link");
+  }
+
   async function print() {
     if (isStandalone() && isPhone()) {
       // no print dialog in an installed app: hand a paper sheet to the share sheet instead
@@ -103,6 +113,11 @@ export default function PieceActions({ piece, accent, themeTitle, prevHref, next
           <ShapeToggle value={shape} onChange={setShape} />
           <div className="row-actions">
             <button className="btn" onClick={share}>Make the image</button>
+          </div>
+          <div className="chooser-split">
+            <span className="eyebrow">Or send the link</span>
+            <p className="muted small">Opens this piece, with a preview card.</p>
+            <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
           </div>
         </div>
       )}

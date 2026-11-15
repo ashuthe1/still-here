@@ -7,13 +7,13 @@ import { questions, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode, type CardSize } from "@/lib/card";
 import ShapeToggle from "./ShapeToggle";
-import { Share, Printer, Seal } from "./Icons";
+import { Share, Printer, Seal, LinkIcon } from "./Icons";
 import DatePicker from "./DatePicker";
 import EnvelopeArt from "./EnvelopeArt";
 import PaperPlane from "./PaperPlane";
 import { isStandalone, isPhone } from "@/lib/site";
 import { isHiddenQuestion, hideQuestion, unhideQuestion, hiddenQuestions, randomVisible } from "@/lib/hidden";
-import { shareBlob, haptic } from "@/lib/native";
+import { shareBlob, haptic, shareLink } from "@/lib/native";
 
 export default function QuestionEditor({ question, accent, categoryTitle, nextHref }: { question: Question; accent: string; categoryTitle: string; nextHref: string }) {
   const [text, setText] = useState("");
@@ -184,6 +184,13 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
     } catch { flash("Could not make the sheet"); }
   }
 
+  async function sendLink() {
+    setMenu(null);
+    const r = await shareLink(question.text);
+    if (r === "copied") flash("Link copied, ready to paste");
+    else if (r === "failed") flash("Could not share the link");
+  }
+
   function print(withAnswer: boolean) {
     setMenu(null);
     if (isStandalone() && isPhone()) { printAsSheet(withAnswer); return; }
@@ -328,6 +335,13 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
             <button className="pill" onClick={() => (menu === "share" ? share(false) : print(false))}>Just the question</button>
             <button className="pill" onClick={() => (menu === "share" ? share(true) : print(true))} disabled={!latestAnswer()}>With my answer</button>
           </div>
+          {menu === "share" && (
+            <div className="chooser-split">
+              <span className="eyebrow">Or send the link</span>
+              <p className="muted small">Opens this question, with a preview card. Your answer stays here.</p>
+              <button className="pill" onClick={sendLink}><LinkIcon /> Send the link</button>
+            </div>
+          )}
         </div>
       )}
       {mounted && createPortal(

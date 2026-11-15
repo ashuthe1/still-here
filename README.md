@@ -1,6 +1,6 @@
 # Still Here
 
-A quiet place to get to know yourself. Still Here asks one gentle question at a time, about who you are, what you want, work, love, time, and what you are grateful for, and gives you a private space to write the answer. Answers stay on your device, dated, so you can answer again later and see how you have moved. Share a question or an answer as an image, print a sheet to write on by hand, or print a whole category as a booklet. A second section, Read, is a small shelf of curated lines and letters.
+A quiet place to get to know yourself. Still Here asks one thoughtful question at a time, about who you are, what you want, work, love, time, and what you are grateful for, and gives you a private space to write the answer. Answers stay on your device, dated, so you can answer again later and see how you have moved. Share a question or an answer as an image, print a sheet to write on by hand, or print a whole category as a booklet. A second section, Read, is a small shelf of curated lines and letters.
 
 ## Run
 
