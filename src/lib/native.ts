@@ -24,6 +24,20 @@ export async function shareBlob(blob: Blob, name: string): Promise<boolean> {
   return true;
 }
 
+/** Shares several images in one sheet (a whole book). Returns false in a browser. */
+export async function shareBlobs(blobs: Blob[], names: string[]): Promise<boolean> {
+  if (!isNative()) return false;
+  const { Filesystem, Directory } = await import("@capacitor/filesystem");
+  const { Share } = await import("@capacitor/share");
+  const files: string[] = [];
+  for (let i = 0; i < blobs.length; i++) {
+    const written = await Filesystem.writeFile({ path: names[i], data: await blobToBase64(blobs[i]), directory: Directory.Cache });
+    files.push(written.uri);
+  }
+  await Share.share({ files, dialogTitle: "Still Here" });
+  return true;
+}
+
 /** Saves a text file to the phone's Documents and offers to send it on. Returns false in a browser. */
 export async function saveText(name: string, text: string): Promise<boolean> {
   if (!isNative()) return false;

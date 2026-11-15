@@ -8,7 +8,7 @@ export default function RandomQuestion() {
   const router = useRouter();
   useEffect(() => {
     const q = randomVisible(dailyPool, new Set(hiddenQuestions()));
-    router.replace(q ? questionHref(q) : "/");
+    router.replace(q ? questionHref(q) : "/ask/");
   }, [router]);
   return <main className="wrap"><p className="empty">Finding one for you…</p></main>;
 }

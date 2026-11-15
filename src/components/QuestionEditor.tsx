@@ -140,7 +140,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       if (target && !hid.has(target.id)) return nextHref;
     }
     const q = randomVisible(dailyPool, hid, question.id);
-    return q ? questionHref(q) : "/";
+    return q ? questionHref(q) : "/ask/";
   }
   function notToday() { router.push(nextVisibleHref()); }
   function notForMe() {

@@ -26,8 +26,8 @@ export default function Header() {
     try { localStorage.setItem("sh-theme", next); } catch {}
     setTheme(next);
   }
-  const onRead = path.startsWith("/read") || path.startsWith("/t/");
-  const onAsk = !onRead && !path.startsWith("/me") && !path.startsWith("/about") && !path.startsWith("/search");
+  const onRead = path === "/" || path.startsWith("/read") || path.startsWith("/t/") || path.startsWith("/b/") || path.startsWith("/books") || path.startsWith("/random");
+  const onAsk = path.startsWith("/ask") || path.startsWith("/print") || path.startsWith("/saved");
   return (
     <header className="hdr">
       <Link href="/" className="wordmark" aria-label="Still Here, home">
@@ -35,8 +35,8 @@ export default function Header() {
         Still Here
       </Link>
       <nav className="nav" aria-label="Sections">
-        <Link href="/" className={onAsk ? "on" : ""}>Ask &amp; Find</Link>
-        <Link href="/read/" className={onRead ? "on" : ""}>Read</Link>
+        <Link href="/" className={onRead ? "on" : ""}>Read</Link>
+        <Link href="/ask/" className={onAsk ? "on" : ""}>Ask &amp; Find</Link>
       </nav>
       <div className="hdr-actions">
         <Link href="/search/" className="icon-btn" title="Search" aria-label="Search"><Search /></Link>

@@ -99,6 +99,28 @@ if (existsSync(ASK)) {
   }
 }
 
+// ---------- Books: small swipeable books in Read ----------
+//   content/books/<slug>.md, pages separated by a line holding only "---".
+//   Page lines: "# heading", "~ small caption", "A: top half", "B: bottom half" (pairs), anything else is text.
+const books = [];
+const BOOKS = join(ROOT, "books");
+if (existsSync(BOOKS)) {
+  const qids = new Set(questions.map((q) => q.id));
+  for (const f of mdFiles(BOOKS)) {
+    const [bm, body] = parseFrontMatter(readFileSync(join(BOOKS, f), "utf8"));
+    const slug = basename(f, ".md");
+    if (bm.ask && !qids.has(bm.ask)) console.warn(`warn: book ${slug} links to missing question ${bm.ask}`);
+    const pages = body.split(/\n---\n/).map((s) => s.trim()).filter(Boolean);
+    books.push({
+      slug, title: bm.title || slug, hook: bm.hook || "", kind: bm.kind || "story",
+      motif: bm.motif || "leaf", accent: bm.accent || "#c9a66b", order: bm.order ?? 99,
+      labels: Array.isArray(bm.labels) ? bm.labels : [], credit: bm.credit || "",
+      ask: qids.has(bm.ask) ? bm.ask : "", close: bm.close || "", pages,
+    });
+  }
+  books.sort((a, b) => a.order - b.order);
+}
+
 mkdirSync(new URL("../src/data/", import.meta.url).pathname, { recursive: true });
-writeFileSync(OUT, JSON.stringify({ themes, pieces, categories, questions, start, builtAt: new Date().toISOString() }, null, 2));
-console.log(`content: ${themes.length} themes, ${pieces.length} pieces, ${categories.length} categories, ${questions.length} questions, start path ${start.length}`);
+writeFileSync(OUT, JSON.stringify({ themes, pieces, categories, questions, start, books, builtAt: new Date().toISOString() }, null, 2));
+console.log(`content: ${themes.length} themes, ${pieces.length} pieces, ${categories.length} categories, ${questions.length} questions, ${books.length} books, start path ${start.length}`);

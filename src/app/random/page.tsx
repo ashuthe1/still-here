@@ -8,7 +8,7 @@ export default function RandomPage() {
   const router = useRouter();
   useEffect(() => {
     const p = randomVisible(pieces, new Set(hiddenPieces()));
-    router.replace(p ? pieceHref(p) : "/read/");
+    router.replace(p ? pieceHref(p) : "/");
   }, [router]);
   return <main className="wrap"><p className="empty">Picking one for you…</p></main>;
 }

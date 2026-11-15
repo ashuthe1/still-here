@@ -146,3 +146,92 @@ export function dailyPoolIndex(date: Date): number {
   const days = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
   return ((days % dailyPool.length) + dailyPool.length) % dailyPool.length;
 }
+
+// ---------------- Books ----------------
+
+export type BookKind = "story" | "talk" | "creature" | "list" | "pair" | "notes";
+
+export interface Book {
+  slug: string;
+  title: string;
+  hook: string;     // the line under the title on the cover
+  kind: BookKind;
+  motif: string;    // key of the line drawing in Motif.tsx
+  accent: string;
+  order: number;
+  labels: string[]; // pair books: the two half labels, e.g. ["What I said", "What I meant"]
+  credit: string;   // notes books: the source
+  ask: string;      // the question the last page hands over to
+  close: string;    // the line on the last page, above the question
+  pages: string[];  // raw page text
+}
+
+export const books: Book[] = ((data as { books?: Book[] }).books ?? []) as Book[];
+
+export function getBook(slug: string): Book | undefined {
+  return books.find((b) => b.slug === slug);
+}
+export function bookHref(b: Pick<Book, "slug">): string {
+  return `/b/${b.slug}/`;
+}
+
+/** One run of text inside a line; marked runs get the highlighter. */
+export interface Run { text: string; mark: boolean }
+export type PageLine =
+  | { kind: "h"; runs: Run[] }
+  | { kind: "p"; runs: Run[] }
+  | { kind: "cap"; runs: Run[] }
+  | { kind: "half"; side: "A" | "B"; runs: Run[] }
+  | { kind: "say"; side: "them" | "me"; runs: Run[] }
+  | { kind: "draw"; name: string }
+  | { kind: "gap" };
+
+export function runs(text: string): Run[] {
+  const out: Run[] = [];
+  text.split(/(==[^=]+==)/).forEach((s) => {
+    if (!s) return;
+    if (s.startsWith("==") && s.endsWith("==")) out.push({ text: s.slice(2, -2), mark: true });
+    else out.push({ text: s, mark: false });
+  });
+  return out;
+}
+
+/**
+ * Parses one page of a book into lines. A blank line becomes a gap.
+ *   # heading   ~ caption   A:/B: pair halves   > they say   < I say   @drawing
+ */
+export function parsePage(raw: string): PageLine[] {
+  const out: PageLine[] = [];
+  for (const line of raw.split("\n")) {
+    const s = line.trim();
+    if (!s) { if (out.length && out[out.length - 1].kind !== "gap") out.push({ kind: "gap" }); continue; }
+    if (s.startsWith("# ")) out.push({ kind: "h", runs: runs(s.slice(2)) });
+    else if (s.startsWith("~ ")) out.push({ kind: "cap", runs: runs(s.slice(2)) });
+    else if (/^[AB]: /.test(s)) out.push({ kind: "half", side: s[0] as "A" | "B", runs: runs(s.slice(3)) });
+    else if (s.startsWith("> ")) out.push({ kind: "say", side: "them", runs: runs(s.slice(2)) });
+    else if (s.startsWith("< ")) out.push({ kind: "say", side: "me", runs: runs(s.slice(2)) });
+    else if (/^@[a-z-]+$/.test(s)) out.push({ kind: "draw", name: s.slice(1) });
+    else out.push({ kind: "p", runs: runs(s) });
+  }
+  while (out.length && out[out.length - 1].kind === "gap") out.pop();
+  return out;
+}
+
+export const plain = (r: Run[]) => r.map((x) => x.text).join("");
+
+/** The drawing a page asks for with "@name", if any. */
+export function pageDrawing(lines: PageLine[]): string | undefined {
+  const d = lines.find((l) => l.kind === "draw");
+  return d && d.kind === "draw" ? d.name : undefined;
+}
+
+/** The shelves on the Books page, in order. */
+export const BOOK_SHELVES: { kind: BookKind; title: string; blurb: string }[] = [
+  { kind: "story", title: "Stories", blurb: "Small stories about ordinary people, told a page at a time." },
+  { kind: "talk", title: "Conversations", blurb: "Two people, a few honest questions." },
+  { kind: "creature", title: "Advice from small friends", blurb: "Gentle, slightly ridiculous wisdom from animals who have thought about it." },
+  { kind: "list", title: "Short lists", blurb: "One idea a page." },
+  { kind: "pair", title: "In pairs", blurb: "How it looked, and how it was." },
+  { kind: "notes", title: "Old notebooks", blurb: "Very old books, in plain words." },
+];
+export const booksOfKind = (k: BookKind) => books.filter((b) => b.kind === k);
