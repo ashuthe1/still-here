@@ -2,19 +2,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { questions, categories, dailyIndex, questionHref } from "@/lib/content";
+import { dailyPool, categories, dailyPoolIndex, questionHref } from "@/lib/content";
 import { ArrowRight, Shuffle } from "./Icons";
 import { hiddenQuestions, pickVisible, randomVisible } from "@/lib/hidden";
 
 export default function DailyQuestion() {
-  const [q, setQ] = useState<typeof questions[number] | null>(null);
+  const [q, setQ] = useState<typeof dailyPool[number] | null>(null);
   const router = useRouter();
   useEffect(() => {
-    const start = dailyIndex(new Date(), questions.length, 1);
-    setQ(pickVisible(questions, start, new Set(hiddenQuestions())) ?? questions[start]);
+    const start = dailyPoolIndex(new Date());
+    setQ(pickVisible(dailyPool, start, new Set(hiddenQuestions())) ?? dailyPool[start]);
   }, []);
   function another() {
-    const next = randomVisible(questions, new Set(hiddenQuestions()), q?.id);
+    const next = randomVisible(dailyPool, new Set(hiddenQuestions()), q?.id);
     if (next) router.push(questionHref(next));
   }
   if (!q) return <div className="today skeleton" aria-hidden />;

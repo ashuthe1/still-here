@@ -83,6 +83,7 @@ if (existsSync(ASK)) {
         tags: Array.isArray(qm.tags) ? qm.tags : [], order: qm.order ?? 999,
         seal: qm.seal === true || qm.seal === "true",
         send: typeof qm.send === "string" ? qm.send : "",
+        daily: qm.daily === true || qm.daily === "true",
       });
       cat.count++;
     }

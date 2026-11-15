@@ -101,6 +101,7 @@ export interface Question {
   order: number;
   seal?: boolean;
   send?: string;   // "younger": the letter is sent back to a younger self when kept
+  daily?: boolean; // in the hand-picked pool for tonight's question
 }
 
 export const categories: Category[] = (data as { categories: Category[] }).categories;
@@ -127,4 +128,21 @@ export function questionHref(q: Pick<Question, "cat" | "slug">): string {
 }
 export function categoryHref(key: string): string {
   return `/ask/${key}/`;
+}
+
+/**
+ * The hand-picked pool for tonight's question, interleaved by category so that
+ * consecutive days come from different parts of life.
+ */
+export const dailyPool: Question[] = (() => {
+  const byCat = categories.map((c) => questions.filter((q) => q.daily && q.cat === c.key));
+  const out: Question[] = [];
+  for (let i = 0; byCat.some((l) => i < l.length); i++) for (const l of byCat) if (i < l.length) out.push(l[i]);
+  return out;
+})();
+
+/** Tonight's question: walks the pool in order, one step per calendar day, the same for everyone. */
+export function dailyPoolIndex(date: Date): number {
+  const days = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+  return ((days % dailyPool.length) + dailyPool.length) % dailyPool.length;
 }

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Question } from "@/lib/content";
-import { questions, questionHref } from "@/lib/content";
+import { questions, dailyPool, questionHref } from "@/lib/content";
 import { addEntry, deleteEntry, restoreEntry, getDraft, getEntries, setDraft, updateEntry, formatDate, sealEntry, openEntry, isSealed, isReady, daysUntil, type Entry } from "@/lib/answers";
 import { renderQuestionCard, renderSealedCard, type QuestionCardMode, type CardSize } from "@/lib/card";
 import ShapeToggle from "./ShapeToggle";
@@ -139,7 +139,7 @@ export default function QuestionEditor({ question, accent, categoryTitle, nextHr
       const target = questions.find((q) => questionHref(q) === nextHref);
       if (target && !hid.has(target.id)) return nextHref;
     }
-    const q = randomVisible(questions, hid, question.id);
+    const q = randomVisible(dailyPool, hid, question.id);
     return q ? questionHref(q) : "/";
   }
   function notToday() { router.push(nextVisibleHref()); }
